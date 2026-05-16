@@ -2,414 +2,838 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMIR GANN ULTIMATE WHEEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rêbar FX - Master Suite Pro</title>
     <style>
-        :root {
-            --bg-main: #06090d;
-            --bg-container: #0d1117;
-            --border-color: #30363d;
-            --accent-neon: #00ffcc;
-            --accent-gold: #ffd700;
-            --text-light: #f0f6fc;
-            --text-gray: #8b949e;
-            --btn-red: #da3637;
-            --bg-bot: #161b22;
+        :root { --neon-cyan: #00ffcc; --neon-gold: #d4af37; --neon-pink: #ff3399; --bg-dark: #000; }
+        body { background: #000; margin: 0; overflow: hidden; font-family: sans-serif; touch-action: none; color: white; direction: ltr; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+
+        /* Splash Screen */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); z-index: 2000000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out; direction: rtl; text-align: center; }
+        .splash-title { font-size: 32px; font-weight: bold; color: var(--neon-gold); margin-bottom: 10px; text-shadow: 0 0 25px rgba(212,175,55,0.6); }
+        .splash-sub { font-size: 15px; color: #aaa; margin-bottom: 40px; letter-spacing: 1px; }
+        .splash-telegram { background: rgba(212,175,55,0.08); border: 1px dashed var(--neon-gold); padding: 15px 30px; border-radius: 10px; font-size: 18px; color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 255, 204, 0.1); }
+        .splash-telegram span { font-size: 13px; color: #888; display: block; margin-top: 8px; direction: ltr;}
+
+        /* Header & Sidebar */
+        .header { position: fixed; top: 0; width: 100%; background: rgba(12, 12, 12, 0.95); padding: 10px; border-bottom: 1px solid var(--neon-cyan); z-index: 9999; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(5px); direction: ltr;}
+        .menu-toggle { background: var(--neon-cyan); border: none; color: #000; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+        .marquee-container { position: fixed; top: 48px; width: 100%; background: #111; color: var(--neon-gold); font-size: 13px; font-weight: bold; padding: 5px 0; border-bottom: 1px dashed #333; z-index: 9998; display: flex; align-items: center; direction: rtl; }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 310px; height: 100%; background: rgba(10, 10, 10, 0.98); border-right: 1px solid var(--neon-cyan); z-index: 10000; transition: 0.3s; padding: 85px 20px 20px 20px; box-sizing: border-box; overflow-y: auto; box-shadow: 5px 0 20px rgba(0,0,0,0.8); direction: rtl;}
+        .sidebar.active { left: 0; }
+        .close-menu { position: absolute; top: 15px; right: 15px; background: none; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 2px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+
+        /* Form Inputs */
+        .menu-item { margin-top: 15px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .menu-item label { display: block; color: var(--neon-cyan); font-size: 12px; margin-bottom: 6px; font-weight: bold; text-align: center; }
+        input, select { background: #0a0a0a; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 5px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box; text-align: center; font-weight: bold; font-family: monospace;}
+        input:focus, select:focus { border-color: var(--neon-cyan); }
+        .target-input-hex { border-color: #ff3333 !important; color: #ff3333; }
+        .toggle-group { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--neon-gold); font-size: 13px; font-weight: bold; margin-top: 10px; }
+        .toggle-group input { width: auto; transform: scale(1.2); accent-color: var(--neon-gold); }
+
+        /* Calculator Box */
+        .calculator-box { background: rgba(0, 255, 204, 0.05); padding: 12px; border-radius: 6px; border: 1px dashed #00ffcc; margin-bottom: 15px; margin-top: 15px; direction: rtl; }
+        .calculator-box label { color: #00ffcc; font-size: 13px; margin-bottom: 8px; text-align: center; display: block; font-weight: bold; }
+        .calc-result { color: #fff; font-weight: bold; margin-top: 10px; font-size: 15px; text-align: center; background: #000; padding: 5px; border-radius: 4px; border: 1px solid #333;}
+
+        /* Map Area */
+        #viewport-maps { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; display: block; z-index: 10; background: radial-gradient(circle at center, #111 0%, #000 80%);}
+        .map-area { position: absolute; width: 6000px; height: 6000px; display: flex; align-items: center; justify-content: center; cursor: grab; }
+        .map-area:active { cursor: grabbing; }
+        #zoom-layer { position: relative; transform-origin: center; display: flex; align-items: center; justify-content: center;}
+        canvas { background: transparent; }
+
+        /* Planetary Styles */
+        .master-wheel { position: relative; width: 1000px; height: 1000px; display: block; }
+        .ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; }
+        .price-ring { width: 480px; height: 480px; border: 2px dashed rgba(212, 175, 55, 0.4); box-shadow: 0 0 25px rgba(212, 175, 55, 0.15), inset 0 0 15px rgba(212, 175, 55, 0.1); }
+        .angle-ring { width: 620px; height: 620px; border: 2px solid rgba(0, 255, 204, 0.3); box-shadow: 0 0 35px rgba(0, 255, 204, 0.15), inset 0 0 20px rgba(0, 255, 204, 0.1); }
+        .time-ring { width: 820px; height: 820px; border: 2px dotted rgba(255, 51, 153, 0.5); box-shadow: 0 0 40px rgba(255, 51, 153, 0.1), inset 0 0 20px rgba(255, 51, 153, 0.05); }
+        .center-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 75px; height: 75px; background: #050505; border: 3px solid #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 15px; z-index: 100; box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); text-shadow: 0 0 5px #d4af37;}
+        .node { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-weight: bold; pointer-events: none; }
+        .price-node { color: #fff; font-size: 9px; background: rgba(0,0,0,0.85); padding: 3px 5px; border: 1px solid #444; border-radius: 4px; z-index: 80; }
+        .angle-node { font-size: 11px; z-index: 70; font-weight: bold; text-shadow: 0 0 5px #000; }
+        .time-node { color: #00ffcc; font-size: 12px; z-index: 60; opacity: 0.9; }
+        .time-marker { width: 16px; height: 16px; background: #ff3333; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); box-shadow: 0 0 20px #ff3333, 0 0 8px #fff; z-index: 500; border: 2px solid #fff; }
+        .time-label { color: #fff; background: #ff3333; padding: 3px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; position: absolute; transform: translate(-50%, -50%); z-index: 501; }
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 450; }
+        #smart-ruler-box { position: absolute; background: rgba(10, 15, 25, 0.95); border: 1px solid #00ffcc; padding: 10px 15px; border-radius: 8px; color: #fff; font-size: 14px; font-weight: bold; pointer-events: none; display: none; z-index: 1000; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4); text-align: left; direction: ltr; transform: translate(-50%, -50%); }
+
+        /* Security Lock */
+        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 1000000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; direction: ltr;}
+        .lock-box { background: #111; padding: 30px 20px; border-radius: 10px; border: 1px solid var(--neon-gold); box-shadow: 0 0 30px rgba(212,175,55,0.15); width: 85%; max-width: 350px; }
+        .device-id-box { background: #000; padding: 12px; border-radius: 5px; border: 1px dashed var(--neon-gold); margin: 15px 0; font-family: monospace; color: var(--neon-cyan); font-size: 18px; letter-spacing: 2px; font-weight: bold; }
+        #license-input { width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #555; color: #fff; border-radius: 5px; text-align: center; font-size: 16px; outline: none; }
+        .activate-btn { background: linear-gradient(135deg, #d4af37 0%, #aa8529 100%); color: #000; border: none; padding: 12px 20px; font-weight: bold; font-size: 15px; border-radius: 5px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #lock-msg { margin-top: 15px; font-size: 12px; color: #ff3333; font-weight: bold; min-height: 20px; }
+        .logout-btn { background: rgba(255,51,51,0.1); border: 1px dashed #ff3333; color: #ff3333; width: 100%; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+
+        /* Bot Styling */
+        #rebar-bot-btn {
+            position: fixed; bottom: 30px; right: 20px; z-index: 100001;
+            background: linear-gradient(135deg, var(--neon-gold), #ff9900);
+            color: #000; padding: 12px 20px; border-radius: 30px;
+            font-weight: bold; font-size: 15px; cursor: grab;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+            border: 2px solid #fff; display: flex; align-items: center; gap: 8px;
+            user-select: none; touch-action: none;
+            display: none; /* تەنیا بۆ تەلەسم دەردەکەوێت */
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-light);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+        #bot-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(10, 10, 15, 0.98); border: 2px solid var(--neon-gold);
+            padding: 25px; border-radius: 15px; z-index: 100002; width: 85%; max-width: 360px;
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4); direction: rtl; text-align: center;
         }
+        #bot-modal h3 { color: var(--neon-gold); margin-top: 0; border-bottom: 1px dashed #444; padding-bottom: 10px; }
+        .bot-msg { font-size: 14px; color: #fff; margin-bottom: 15px; line-height: 1.5; font-weight: bold;}
+        .bot-input { font-size: 20px; padding: 12px; border: 2px solid var(--neon-cyan); border-radius: 8px; margin-bottom: 15px; color: #fff; background: #000; width: 90%; text-align: center; font-family: monospace;}
+        .bot-btn-submit { background: var(--neon-cyan); color: #000; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
+        .close-bot { position: absolute; top: 15px; left: 15px; background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
 
-        .top-navbar {
-            width: 100%;
-            max-width: 500px;
-            background-color: var(--bg-container);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .nav-btn {
-            background: none;
-            border: 1px solid transparent;
-            color: var(--text-gray);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .nav-btn.active {
-            background-color: #1f242c;
-            color: var(--accent-neon);
-            border-color: var(--accent-neon);
-        }
-
-        .container {
-            background-color: var(--bg-container);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
-        }
-
-        .header-title {
-            background-color: #161b22;
-            border: 1px solid var(--accent-gold);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            color: var(--accent-gold);
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .section-title {
-            color: var(--accent-neon);
-            border-bottom: 1px dashed #30363d;
-            padding-bottom: 5px;
-            margin: 20px 0 12px 0;
-            font-size: 14px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-main);
-            color: #fff;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
-            margin-bottom: 12px;
-            outline: none;
-        }
-
-        .gann-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 13px;
-        }
-
-        .gann-table th, .gann-table td {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            text-align: center;
-        }
-
-        .gann-table th {
-            background-color: #161b22;
-            color: var(--text-gray);
-        }
-
-        .res-text { color: #da3637; font-weight: bold; }
-        .sup-text { color: #2ea44f; font-weight: bold; }
-
-        .bot-box {
-            background-color: var(--bg-bot);
-            border: 1px solid #238636;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-
-        .bot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-
-        .bot-status {
-            font-size: 11px;
-            background-color: #238636;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-
-        .signal-card {
-            background: #0d1117;
-            border-left: 4px solid #fff;
-            padding: 12px;
-            border-radius: 6px;
-        }
-
-        .signal-buy { border-left-color: #2ea44f; }
-        .signal-sell { border-left-color: #da3637; }
-        .signal-hold { border-left-color: var(--accent-gold); }
-
-        .signal-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-        .badge-buy { background: #2ea44f; color: #fff; }
-        .badge-sell { background: #da3637; color: #fff; }
-        .badge-hold { background: #30363d; color: var(--text-gray); }
-
-        .levels-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .level-item {
-            background: #161b22;
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-        }
-
-        .wheel-box {
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg-container);
-            border-radius: 12px;
-            padding: 20px 10px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 15px;
-            border: 1px solid var(--border-color);
-        }
-
-        canvas {
-            background-color: #040608;
-            border-radius: 50%;
-        }
+        #bot-results { display: none; margin-top: 15px; text-align: right; background: #050508; padding: 15px; border-radius: 8px; border: 1px solid #334; max-height: 350px; overflow-y: auto;}
+        .signal-box { margin-top: 10px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.8;}
+        .buy-signal { background: rgba(0, 255, 204, 0.08); border-right: 4px solid var(--neon-cyan); color: var(--neon-cyan); }
+        .sell-signal { background: rgba(255, 51, 153, 0.08); border-right: 4px solid var(--neon-pink); color: var(--neon-pink); margin-top: 10px; }
+        .target-val { color: #fff; font-family: monospace; font-size: 15px; font-weight: bold; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<div class="top-navbar">
-    <button class="nav-btn active">🎡 چەرخی جان</button>
-    <button class="nav-btn">⏹️ چوارگۆشەی 9</button>
-    <button class="nav-btn">⬡ شەش پاڵوو</button>
-    <button class="nav-btn">📊 ماتریکس 24</button>
-</div>
-
-<div class="container">
-    <div class="header-title">
-        🎡 سیستمی پێشکەوتووی ماتماتیکی فرەگۆشەکانی چەرخی جان
+    <div id="splash-screen">
+        <div class="splash-title">Rêbar FX 🦅</div>
+        <div class="splash-sub">سیستەمی پێشکەوتووی گەن</div>
+        <div class="splash-telegram">کەناڵی تێلیگرام: <b>Rêbar FX</b><span style="direction: ltr;">( @Rebar_FX )</span></div>
     </div>
 
-    <div class="section-title">📊 داتاکانی نرخ</div>
-    
-    <label>نرخی سەنتەر (دەستپێکی چەرخ):</label>
-    <input type="number" id="centerPrice" value="2300" oninput="runGannEngine()">
-    
-    <label>نرخی ئێستای بازاڕ (بۆ پشکنینی بۆت):</label>
-    <input type="number" id="currentPrice" value="2328" oninput="runGannEngine()">
-
-    <div class="section-title">🧭 دیاریکردنی فرەگۆشە و گۆشەکانی جان (Gann Polygons)</div>
-    
-    <label>تکایە گۆشە یان جۆری دابەشکارییەکە هەڵبژێره:</label>
-    <select id="anglePreset" onchange="runGannEngine()">
-        <option value="120">٣ گۆشە — (120 پلە)</option>
-        <option value="90" selected>٤ گۆشە — (90... پلە)</option>
-        <option value="72">٥ گۆشە — (72 پلە)</option>
-        <option value="60">٦ گۆشە — (60 پلە)</option>
-        <option value="51.4">٧ گۆشە — (51.4 پلە)</option>
-        <option value="45">٨ گۆشە — (45 پلە)</option>
-        <option value="40">٩ گۆشە — (40 پلە)</option>
-        <option value="36">١٠ گۆشە — (36 پلە)</option>
-        <option value="32.7">١١ گۆشە — (32.7 پلە)</option>
-        <option value="30">١٢ گۆشە — (30 پلە)</option>
-        <option value="27.6">١٣ گۆشە — (27.6 پلە)</option>
-        <option value="25.7">١٤ گۆشە — (25.7 پلە)</option>
-        <option value="24">١٥ گۆشە — (24 پلە)</option>
-        <option value="22.5">١٦ گۆشە — (22.5 پلە)</option>
-        <option value="21.1">١٧ گۆشە — (21.1 پلە)</option>
-        <option value="20">١٨ گۆشە — (20 پلە)</option>
-        <option value="18.9">١٩ گۆشە — (18.9 پلە)</option>
-        <option value="18">٢٠ گۆشە — (18 پلە)</option>
-        <option value="17.1">٢١ گۆشە — (17.1 پلە)</option>
-        <option value="16.3">٢٢ گۆشە — (16.3 پلە)</option>
-        <option value="15.6">٢٣ گۆشە — (15.6 پلە)</option>
-        <option value="15">٢٤ گۆشە — (15 پلە)</option>
-    </select>
-
-    <div class="section-title">📋 خشتەی سەرجەم قۆناغەکانی ئاستی هەڵبژێردراو</div>
-    <table class="gann-table">
-        <thead>
-            <tr>
-                <th>قۆناغ</th>
-                <th>🔴 هێڵی بەرگری (Resistance)</th>
-                <th>🟢 هێڵی پشتگیری (Support)</th>
-            </tr>
-        </thead>
-        <tbody id="gannTableBody">
-            </tbody>
-    </table>
-
-    <div class="bot-box">
-        <div class="bot-header">
-            <span style="font-weight: bold; color: var(--accent-neon); font-size: 13px;">🤖 بۆتی چاودێری پۆلیگۆنەکانی جان</span>
-            <span class="bot-status" id="botTime">Scan Log</span>
+    <div id="lock-screen" style="display: none;">
+        <div class="lock-box">
+            <h2 style="color: #d4af37; margin-top: 0;">Master Suite Pro</h2>
+            <div style="font-size: 12px; color: #ccc;">ئایدی مۆبایلەکەت:</div>
+            <div class="device-id-box" id="device-id-display">...</div>
+            <input type="password" id="license-input" placeholder="کلیلی چوونەژوورەوە...">
+            <button class="activate-btn" id="btn-activate">چالاککردن</button>
+            <div id="lock-msg"></div>
+            <div style="font-size: 10px; color: #888; margin-top: 15px; line-height: 1.6;">بۆ وەرگرتنی کلیل پەیوەندی بکە بە:<br><strong>(@Rebar_FX)</strong></div>
         </div>
-        
-        <div id="signalContainer"></div>
     </div>
-</div>
 
-<div class="wheel-box">
-    <canvas id="gannCanvas" width="360" height="360"></canvas>
-</div>
+    <div class="header">
+        <button class="menu-toggle" id="btn-menu">☰ ڕێکخستن</button>
+        <div id="digitalClock" style="color: #00ffcc; font-size: 13px; font-weight: bold; border-left: 1px solid #333; padding-left: 10px;">00:00:00</div>
+        <span style="color: #d4af37; font-weight: bold; margin-left: auto;">Rêbar_FX</span>
+    </div>
+    <div class="marquee-container">
+        <marquee behavior="scroll" direction="right" scrollamount="4.5">
+            ✨ بەخێربێن بۆ سیستەمی پێشکەوتووی ماستەر (Planetary, Hexagon, & Matrix 24) — هەموو مافێکی پارێزراوە بۆ خاوەنی ئەپ (Rêbar FX) 🎯
+        </marquee>
+    </div>
 
-<script>
-    function runGannEngine() {
-        updateClock();
-        const centerPrice = parseFloat(document.getElementById('centerPrice').value) || 0;
-        const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
-        const stepAngle = parseFloat(document.getElementById('anglePreset').value);
+    <div id="rebar-bot-btn">🤖 بۆتی گەن</div>
+    <div id="bot-modal">
+        <button class="close-bot" onclick="window.closeBot()">✕</button>
+        <h3>🤖 بۆتی شیكاریی گه‌ن</h3>
+        <div class="bot-msg" id="bot-greeting">سڵاو! ئۆردەر بۆ کاتژمێر ئامادە دەکەم، نرخی ئێستام پێ بڵێ:</div>
+        <input type="number" id="botPriceInput" class="bot-input" placeholder="نرخ... (نموونە 4700)">
+        <button class="bot-btn-submit" onclick="window.generateMatrixSignal()">ئامادەکردنی ئۆردەر 🎯</button>
 
-        if (centerPrice <= 0) return;
+        <div id="bot-results">
+            <div style="color: #fff; text-align: center; margin-bottom: 10px; font-weight: bold; border-bottom: 1px dashed #555; padding-bottom: 10px;" id="bot-status"></div>
+            <div class="signal-box buy-signal" id="buyBox"></div>
+            <div class="signal-box sell-signal" id="sellBox"></div>
+        </div>
+    </div>
 
-        let levels = [];
-        let baseRoot = Math.sqrt(centerPrice);
-        
-        let tableHtml = "";
-        // ئەژمارکردنی ٤ ئاستی سەرەکی بازنەکە لەسەر بنەمای گۆشەی گۆڕاو
-        for (let i = 1; i <= 4; i++) {
-            let stepValue = (stepAngle / 360) * 2;
-            let resLevel = Math.pow(baseRoot + (stepValue * 0.125 * i), 2);
-            let supLevel = Math.pow(baseRoot - (stepValue * 0.125 * i), 2);
-            
-            levels.push({ stage: i, resistance: resLevel, support: supLevel });
-            
-            tableHtml += `
-                <tr>
-                    <td>ئاستی قۆناغی ${i}</td>
-                    <td class="res-text">${Math.round(resLevel)}</td>
-                    <td class="sup-text">${Math.round(supLevel)}</td>
-                </tr>`;
+    <div class="sidebar" id="sidebar">
+        <button class="close-menu" id="btn-close-menu">✕</button>
+
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #444;">
+            <select id="mainChartMode" style="background: linear-gradient(135deg, #d4af37, #aa8529); color: #000; border: none; padding: 10px; font-size: 15px; border-radius: 5px; font-weight: bold; width: 90%;">
+                <option value="planetary">🎡 نەخشەی گەن (Wheel)</option>
+                <option value="hexagon">⬡ شەش‌گۆشە (Time & Price)</option>
+                <option value="talisman">🧿 تەلەسمی گەن (Matrix 24)</option>
+            </select>
+        </div>
+
+        <div id="controls-planetary">
+            <div class="calculator-box">
+                <label>🧮 حیساباتی پلەی بازاڕ</label>
+                <input type="number" id="calcBase" placeholder="نرخی سەنتەر (دەستپێک)" oninput="window.calcGannAngle()" style="margin-bottom: 6px;">
+                <input type="number" id="calcRetrace" placeholder="یەکەم گەڕانەوە (لوتکە/بنکە)" oninput="window.calcGannAngle()">
+                <div class="calc-result" id="calcResult">پلەی بازاڕ: --°</div>
+            </div>
+            <div class="menu-item"><label style="color: #00ffcc;">سەنتەری نەخشەی گەن</label><input type="number" id="planPrice" value="2304"></div>
+            <div class="menu-item"><label style="color: #00ffcc;">ئاڕاستە و شێوە و سووڕ</label>
+                <select id="planTrend" style="margin-bottom: 5px;"><option value="up">UP (+)</option><option value="down">DOWN (-)</option></select>
+                <select id="planShape" style="margin-bottom: 5px;">
+                    <option value="120">٣ گۆشە (120°)</option><option value="90">٤ گۆشە (90°)</option><option value="72">٥ گۆشە (72°)</option>
+                    <option value="60">٦ گۆشە (60°)</option><option value="51.4285">٧ گۆشە (51.4°)</option><option value="45" selected>٨ گۆشە (45°)</option>
+                    <option value="40">٩ گۆشە (40°)</option><option value="36">١٠ گۆشە (36°)</option><option value="32.7272">١١ گۆشە (32.7°)</option>
+                    <option value="30">١٢ گۆشە (30°)</option><option value="27.6923">١٣ گۆشە (27.6°)</option><option value="25.7142">١٤ گۆشە (25.7°)</option>
+                    <option value="24">١٥ گۆشە (24°)</option><option value="22.5">١٦ گۆشە (22.5°)</option><option value="21.1764">١٧ گۆشە (21.1°)</option>
+                    <option value="20">١٨ گۆشە (20°)</option><option value="18.9473">١٩ گۆشە (18.9°)</option><option value="18">٢٠ گۆشە (18°)</option>
+                    <option value="17.1428">٢١ گۆشە (17.1°)</option><option value="16.3636">٢٢ گۆشە (16.3°)</option><option value="15.6521">٢٣ گۆشە (15.6°)</option>
+                    <option value="15">٢٤ گۆشە (15°)</option>
+                </select>
+                <select id="planCycles" style="background: #1a1a1a; color: #00ffcc; border-color: #00ffcc;">
+                    <option value="1" selected>١ سووڕ (360°)</option><option value="2">٢ سووڕ (720°)</option>
+                    <option value="3">٣ سووڕ (1080°)</option><option value="4">٤ سووڕ (1440°)</option>
+                </select>
+            </div>
+            <div class="menu-item" style="border-bottom: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                <div class="toggle-group"><input type="checkbox" id="planShowFan"> Fan</div>
+                <div class="toggle-group"><input type="checkbox" id="planShowShape" checked> Shape</div>
+                <div class="toggle-group"><input type="checkbox" id="planShowRuler"> Ruler</div>
+            </div>
+        </div>
+
+        <div id="controls-hexagon" style="display: none;">
+            <div class="menu-item">
+                <label style="color: #00ffcc;">١. جۆری داتا</label>
+                <select id="hexDataType" style="color: #00ffcc; border-color: #00ffcc;">
+                    <option value="price">📊 شیکاری نرخ</option><option value="hour">⏱️ شیکاری کاتژمێر</option><option value="date">📅 شیکاری بەروار</option>
+                </select>
+            </div>
+            <div class="menu-item"><label style="color: #00ffcc;">٢. سەنتەری دەستپێک</label><input type="number" id="hexBaseInput" value="2304"></div>
+            <div class="menu-item" style="background: rgba(255, 51, 51, 0.05); padding: 10px; border-radius: 5px; border: 1px dashed #ff3333;"><label style="color: #ff3333;">🎯 گەڕان بەدوای ئامانج</label><input type="number" id="hexTargetInput" class="target-input-hex" placeholder="..." style="background:#0a0a0a;"></div>
+            <div class="menu-item"><label style="color: #00ffcc;">ئاراستەی ترێند</label><select id="hexTrendDir"><option value="up">📈 پێشەوە (+)</option><option value="down">📉 دواوە (-)</option></select></div>
+            <div class="menu-item"><label style="color: #00ffcc;">بڕی هەنگاو</label><input type="number" id="hexStepValue" value="1" step="0.5"></div>
+            <div class="menu-item" style="border-bottom: none;"><label style="color: #00ffcc;">ژمارەی چینەکان</label><input type="number" id="hexGridLayers" value="12" min="3"></div>
+        </div>
+
+        <div id="controls-talisman" style="display: none;">
+            <div class="menu-item"><label style="color: #00ffcc;">سەنتەر (Center Price)</label><input type="number" id="sq24BasePrice" value="4795"></div>
+            <div class="menu-item" style="border-left: 3px solid #ff3399; background: rgba(255, 51, 153, 0.05);"><label style="color:var(--neon-pink);">کاتی دەستکرد (بۆ پشکنین)</label><input type="time" id="sq24ManualTime" oninput="window.drawSq24(); window.updateBotTime();"><div style="font-size: 10px; color: #88a; margin-top: 5px; text-align: center;">بەتاڵی بهێڵە بۆ کاتی لایڤ</div></div>
+            <div class="menu-item"><label style="color: #00ffcc;">بڕی هەنگاو (Step)</label><input type="number" id="sq24StepValue" value="1" step="0.5"></div>
+        </div>
+
+        <button class="logout-btn" id="btn-logout">چوونە دەرەوە (سڕینەوەی کلیل)</button>
+    </div>
+
+    <div id="viewport-maps">
+        <div class="map-area" id="map">
+            <div id="zoom-layer">
+
+                <div class="master-wheel" id="container-planetary">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 150px; font-weight: bold; color: rgba(212, 175, 55, 0.05); pointer-events: none; text-align: center; white-space: nowrap; z-index: 0;">Rêbar FX</div>
+                    <div class="ring price-ring"></div><div class="ring angle-ring"></div><div class="ring time-ring"></div>
+                    <div class="center-box" id="displayCenter">2304</div>
+                    <svg id="svg-layer-plan"></svg>
+                    <div id="smart-ruler-box"><div style="color:#d4af37;border-bottom:1px dashed #444;padding-bottom:4px;margin-bottom:4px;">🎯 نیشانە</div><div><span style="color:#888;font-size:12px;width:40px;display:inline-block;">Ang:</span> <b id="ruler-ang-val" style="color:#00ffcc;">0°</b></div><div><span style="color:#888;font-size:12px;width:40px;display:inline-block;">Prc:</span> <b id="ruler-prc-val" style="color:#ff3399;">0.00</b></div></div>
+                </div>
+
+                <div id="container-hexagon" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <canvas id="hexCanvas"></canvas>
+                </div>
+
+                <div id="container-talisman" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <canvas id="sq24Canvas"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* --- SECURITY LAYER (ANTI-HACK / ANTI-DEBUG) --- */
+    (function(){
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) return false; 
+            if(e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) return false; 
+            if(e.ctrlKey && e.keyCode == 85) return false; 
+        };
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        setInterval(function() { (function() { return false; } ['constructor']('debugger') ['call']()); }, 1000);
+        setInterval(() => { console.clear(); }, 2000);
+    })();
+
+    /* --- CORE SYSTEM LOGIC (OBFUSCATED SCOPE) --- */
+    (function(){
+        "use strict";
+
+        // AUTO-SAVE LOGIC
+        const savedIds = [
+            'mainChartMode', 'calcBase', 'calcRetrace', 'planPrice', 'planTrend', 'planShape', 'planCycles',
+            'hexDataType', 'hexBaseInput', 'hexTargetInput', 'hexTrendDir', 'hexStepValue', 'hexGridLayers',
+            'sq24BasePrice', 'sq24ManualTime', 'sq24StepValue'
+        ];
+        const savedChecks = ['planShowFan', 'planShowShape', 'planShowRuler'];
+
+        function loadSet() {
+            savedIds.forEach(id => {
+                let v = localStorage.getItem('rfx_' + id);
+                let el = document.getElementById(id);
+                if(v !== null && el) el.value = v;
+            });
+            savedChecks.forEach(id => {
+                let v = localStorage.getItem('rfx_' + id);
+                let el = document.getElementById(id);
+                if(v !== null && el) el.checked = (v === 'true');
+            });
         }
-        document.getElementById('gannTableBody').innerHTML = tableHtml;
 
-        processBotSignal(currentPrice, levels, stepAngle);
-        drawWheel(centerPrice, stepAngle);
-    }
+        function saveSet() {
+            savedIds.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) localStorage.setItem('rfx_' + id, el.value);
+            });
+            savedChecks.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) localStorage.setItem('rfx_' + id, el.checked);
+            });
+        }
 
-    function processBotSignal(currentPrice, levels, stepAngle) {
-        const container = document.getElementById('signalContainer');
-        
-        let closestRes = levels[0].resistance;
-        let closestSup = levels[0].support;
+        function gId() {
+            let id = null;
+            try { id = localStorage.getItem('rebar_device_id'); } catch(e){}
+            if(!id) {
+                id = 'RFX-' + Math.random().toString(36).substr(2,8).toUpperCase();
+                try { localStorage.setItem('rebar_device_id', id); } catch(e){}
+            }
+            return id;
+        }
+        let dId = gId();
+        document.getElementById('device-id-display').innerText = dId;
 
-        levels.forEach(lvl => {
-            if (lvl.resistance > currentPrice && lvl.resistance < closestRes) closestRes = lvl.resistance;
-            if (lvl.support < currentPrice && lvl.support > closestSup) closestSup = lvl.support;
+        async function vKey(k, id) {
+            try {
+                let r = await fetch(`https://rebarfx-astro-default-rtdb.firebaseio.com/licenses/${k}.json`);
+                let d = await r.json();
+                let m = document.getElementById('lock-msg');
+                if(d && (d.deviceId === id || d.deviceId === "ALL") && new Date() <= new Date(d.expiry)) {
+                    try { localStorage.setItem('rebar_license_key', k); } catch(e){}
+                    document.getElementById('lock-screen').style.display = 'none';
+                    loadSet(); swM();
+                } else {
+                    try { localStorage.removeItem('rebar_license_key'); } catch(e){}
+                    m.innerText = "❌ کلیل هەڵەیە یان بەسەرچووە!";
+                    document.getElementById('lock-screen').style.display = 'flex';
+                }
+            } catch(e) {
+                document.getElementById('lock-msg').innerText = "⚠️ هێڵی ئینتەرنێت پێویستە!";
+                document.getElementById('lock-screen').style.display = 'flex';
+            }
+        }
+
+        document.getElementById('btn-activate').addEventListener('click', async () => {
+            let k = document.getElementById('license-input').value.trim().toUpperCase();
+            if(k) await vKey(k, dId);
         });
 
-        let resDiff = Math.abs(currentPrice - closestRes);
-        let supDiff = Math.abs(currentPrice - closestSup);
-        
-        let detailsHtml = "";
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            try { localStorage.removeItem('rebar_license_key'); } catch(e){}
+            location.reload();
+        });
 
-        if (resDiff <= 4) { 
-            let sl = closestRes + 6; 
-            let tp1 = currentPrice - (resDiff * 2) - 5;
-            let tp2 = closestSup + 4;
-            
-            detailsHtml = `
-                <div class="signal-card signal-sell">
-                    <span class="signal-badge badge-sell">🔴 سیگناڵی فرۆشتن: SELL (گۆشەی ${stepAngle}°)</span>
-                    <div>بۆت دۆزییەوە: نرخ گەیشتە خاڵی بەرگری لە دابەشکاری ${stepAngle}° پلەیی جان.</div>
-                    <div class="levels-grid">
-                        <div class="level-item">🎯 نرخی ئێستا: <b>${Math.round(currentPrice)}</b></div>
-                        <div class="level-item" style="color:#da3637;">🛑 ستۆپ لۆز (SL): <b>${Math.round(sl)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 ئامانج ١: <b>${Math.round(tp1)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 ئامانج ٢: <b>${Math.round(tp2)}</b></div>
-                    </div>
-                </div>`;
-        } else if (supDiff <= 4) { 
-            let sl = closestSup - 6; 
-            let tp1 = currentPrice + (supDiff * 2) + 5;
-            let tp2 = closestRes - 4;
-
-            detailsHtml = `
-                <div class="signal-card signal-buy">
-                    <span class="signal-badge badge-buy">🟢 سیگناڵی کڕین: BUY (گۆشەی ${stepAngle}°)</span>
-                    <div>بۆت دۆزییەوە: نرخ کاردانەوەی ئەرێنی هەبوو لەسەر پاڵپشتی گۆشەی ${stepAngle}°.</div>
-                    <div class="levels-grid">
-                        <div class="level-item">🎯 نرخی ئێستا: <b>${Math.round(currentPrice)}</b></div>
-                        <div class="level-item" style="color:#da3637;">🛑 ستۆپ لۆز (SL): <b>${Math.round(sl)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 ئامانج ١: <b>${Math.round(tp1)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 ئامانج ٢: <b>${Math.round(tp2)}</b></div>
-                    </div>
-                </div>`;
-        } else {
-            detailsHtml = `
-                <div class="signal-card signal-hold">
-                    <span class="signal-badge badge-hold">🟡 چاوڕوانیکردنی بازاڕ (SCANNING)</span>
-                    <div>چاوڕوانی نزیکبوونەوە لە هێڵەکانی گۆشەی ${stepAngle}°:</div>
-                    <div class="levels-grid">
-                        <div class="level-item" style="color:#da3637;">🔺 بەرگری داهاتوو: <b>${Math.round(closestRes)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">🔻 پشتگیری داهاتوو: <b>${Math.round(closestSup)}</b></div>
-                    </div>
-                </div>`;
+        function iAu() {
+            let k = null;
+            try { k = localStorage.getItem('rebar_license_key'); } catch(e){}
+            if(k) vKey(k, dId); else document.getElementById('lock-screen').style.display = 'flex';
         }
 
-        container.innerHTML = detailsHtml;
-    }
+        setTimeout(() => {
+            let sp = document.getElementById('splash-screen');
+            if(sp) {
+                sp.style.opacity = '0';
+                setTimeout(() => { sp.style.display = 'none'; iAu(); }, 800);
+            } else { iAu(); }
+        }, 3000);
 
-    function drawWheel(centerPrice, stepAngle) {
-        const canvas = document.getElementById('gannCanvas');
-        const ctx = canvas.getContext('2d');
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function swM() {
+            let m = document.getElementById('mainChartMode').value;
+            ['planetary', 'hexagon', 'talisman'].forEach(mode => {
+                let ctrl = document.getElementById('controls-' + mode);
+                if(ctrl) ctrl.style.display = (m === mode) ? 'block' : 'none';
+                let cont = document.getElementById('container-' + mode);
+                if(cont) cont.style.display = (m === mode) ? 'block' : 'none';
+            });
 
-        // کێشانی تیشکەکان ڕێک بەپێی گۆشەی دابەشکارییەکە بۆ ئەوەی گرافیکەکە ورد بێت
-        for (let angle = 0; angle < 360; angle += stepAngle) {
-            let rad = (angle * Math.PI) / 180;
-            ctx.beginPath(); ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + 160 * Math.cos(rad), cy + 160 * Math.sin(rad));
-            ctx.strokeStyle = 'rgba(0, 255, 204, 0.2)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            let botBtn = document.getElementById('rebar-bot-btn');
+            if(botBtn) botBtn.style.display = (m === 'talisman') ? 'flex' : 'none';
+
+            if(m === 'planetary') dPl(); else if(m === 'hexagon') dHx(); else if(m === 'talisman') window.drawSq24();
+            saveSet();
         }
 
-        // بازنەی چەرخەکە
-        ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
-        ctx.fillStyle = '#ffd700'; ctx.fill();
-        ctx.fillStyle = '#000'; ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(centerPrice, cx, cy);
-    }
+        document.getElementById('mainChartMode').addEventListener('change', swM);
+        document.getElementById('btn-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('active'));
+        document.getElementById('btn-close-menu').addEventListener('click', () => document.getElementById('sidebar').classList.remove('active'));
 
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('botTime').innerText = "کاتی دواین چاودێری: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
+        document.getElementById('hexDataType').addEventListener('change', () => {
+            let m = document.getElementById('hexDataType').value, b = document.getElementById('hexBaseInput'), t = document.getElementById('hexTargetInput');
+            if(m === 'price') { b.type='number'; t.type='number'; b.value=2304; t.value=''; }
+            else if(m === 'hour') { b.type='time'; t.type='time'; b.value='09:00'; t.value=''; }
+            else if(m === 'date') { b.type='date'; t.type='date'; b.value=new Date().toISOString().split('T')[0]; t.value=''; }
+            saveSet(); dHx();
+        });
 
-    window.onload = runGannEngine;
-</script>
+        window.calcGannAngle = function() {
+            let b = parseFloat(document.getElementById('calcBase').value), r = parseFloat(document.getElementById('calcRetrace').value);
+            if(b>0 && r>0) { document.getElementById('calcResult').innerText = `پلەی بازاڕ: ${Math.round(Math.abs(Math.sqrt(r)-Math.sqrt(b))*180)}°`; } 
+            else { document.getElementById('calcResult').innerText = `پلەی بازاڕ: --°`; }
+            saveSet();
+        };
 
+        ['planPrice','planTrend','planShape','planShowFan','planShowShape','planCycles'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('change', () => { saveSet(); dPl(); });
+                if(el.tagName === 'INPUT') el.addEventListener('input', () => { saveSet(); dPl(); });
+            }
+        });
+
+        ['hexBaseInput','hexTargetInput','hexTrendDir','hexStepValue','hexGridLayers'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('change', () => { saveSet(); dHx(); });
+                if(el.tagName === 'INPUT') el.addEventListener('input', () => { saveSet(); dHx(); });
+            }
+        });
+
+        ['sq24BasePrice','sq24ManualTime','sq24StepValue'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('change', () => { saveSet(); if(document.getElementById('mainChartMode').value === 'talisman') window.drawSq24(); });
+                if(el.tagName === 'INPUT') el.addEventListener('input', () => { saveSet(); if(document.getElementById('mainChartMode').value === 'talisman') window.drawSq24(); });
+            }
+        });
+
+        document.getElementById('planShowRuler').addEventListener('change', () => {
+            saveSet();
+            if(!document.getElementById('planShowRuler').checked) {
+                document.getElementById('smart-ruler-box').style.display='none';
+                let r = document.getElementById('ruler-line');
+                if(r) { r.setAttribute('x2',500); r.setAttribute('y2',500); }
+            }
+        });
+
+        setInterval(() => {
+            document.getElementById('digitalClock').innerText = new Date().toLocaleTimeString('en-US',{hour12:false});
+            let m = document.getElementById('mainChartMode').value;
+            if(m === 'planetary') dPl(); else if(m === 'hexagon') dHx(); else if(m === 'talisman') window.drawSq24();
+        }, 60000);
+
+        function cL(x1,y1,x2,y2,c,d) { let l=document.createElementNS("http://www.w3.org/2000/svg","line"); l.setAttribute("x1",x1); l.setAttribute("y1",y1); l.setAttribute("x2",x2); l.setAttribute("y2",y2); l.setAttribute("stroke",c); l.setAttribute("stroke-dasharray",d); return l; }
+        function aN(p,cls,x,y,t,c=null,sTxt=null) { let n=document.createElement('div'); n.className='node '+cls; n.style.left=x+'px'; n.style.top=y+'px'; n.innerText=t; if(c) n.style.color=c; if(sTxt) n.style.cssText+=sTxt; p.appendChild(n); }
+
+        function dPl() {
+            const p=parseFloat(document.getElementById('planPrice').value)||0, st=parseFloat(document.getElementById('planShape').value), tr=document.getElementById('planTrend').value, dir=(tr==="up")?1:-1;
+            const cycles = parseInt(document.getElementById('planCycles').value) || 1;
+            let nw=new Date(); document.getElementById('displayCenter').innerText=p;
+            const w=document.getElementById('container-planetary'), sg=document.getElementById('svg-layer-plan');
+            w.querySelectorAll('.node, .time-marker, .time-label').forEach(e=>e.remove());
+            let rL=document.getElementById('ruler-line'), rx2=rL?rL.getAttribute('x2'):500, ry2=rL?rL.getAttribute('y2'):500;
+            sg.innerHTML='';
+
+            const c=500, rt=Math.sqrt(p);
+            const rP_base = 240, gapPerCycle = 85;
+            const rA = rP_base + ((cycles > 1 ? cycles - 1 : 0) * gapPerCycle) + 70;
+            const rT = rA + 100;
+
+            let pRing = document.querySelector('.price-ring'); if(pRing) { pRing.style.width = (rP_base*2)+'px'; pRing.style.height = (rP_base*2)+'px'; }
+            let aRing = document.querySelector('.angle-ring'); if(aRing) { aRing.style.width = (rA*2)+'px'; aRing.style.height = (rA*2)+'px'; }
+            let tRing = document.querySelector('.time-ring'); if(tRing) { tRing.style.width = (rT*2)+'px'; tRing.style.height = (rT*2)+'px'; }
+
+            const cycleColors = ["#d4af37", "#00ffcc", "#ff3399", "#ffcc00"];
+            for(let cLoop=1; cLoop<cycles; cLoop++){
+                let currentRp = rP_base + (cLoop * gapPerCycle);
+                let crc = document.createElementNS("http://www.w3.org/2000/svg","circle");
+                crc.setAttribute("cx", c); crc.setAttribute("cy", c); crc.setAttribute("r", currentRp);
+                crc.setAttribute("fill", "none"); crc.setAttribute("stroke", cycleColors[cLoop]); 
+                crc.setAttribute("stroke-dasharray", "4,4"); crc.setAttribute("stroke-width", "1.5");
+                crc.setAttribute("opacity", "0.4");
+                sg.appendChild(crc);
+            }
+
+            const cR=((((nw.getHours()+(nw.getMinutes()/60)-1)*15)*dir)-90)*(Math.PI/180);
+            for(let a=0;a<=360;a+=0.5){
+                const r=((a*dir)-90)*(Math.PI/180), clr=`hsl(${a},100%,50%)`;
+                if(a%3.75===0){
+                    aN(w,'price-node',c+rP_base*Math.cos(r),c+rP_base*Math.sin(r),(tr==="up")?Math.pow((rt+(a/180)),2).toFixed(2):Math.pow(Math.max(0,rt-(a/180)),2).toFixed(2));
+                    aN(w,'angle-node',c+rA*Math.cos(r),c+rA*Math.sin(r),Math.round(a)+'°',clr);
+                }
+                if(a%15===0&&a<360) aN(w,'time-node',c+rT*Math.cos(r),c+rT*Math.sin(r),((Math.floor(a/15)+1)%24)+':00',clr);
+            }
+
+            aN(w,'time-marker',c+rT*Math.cos(cR),c+rT*Math.sin(cR),"");
+            aN(w,'time-label',c+(rT+30)*Math.cos(cR),c+(rT+30)*Math.sin(cR),nw.getHours().toString().padStart(2,'0')+":"+nw.getMinutes().toString().padStart(2,'0'));
+
+            if(document.getElementById('planShowFan').checked) {
+                [0,45,90,135,180,225,270,315].forEach(a=>{ 
+                    let outerRp = rP_base + ((cycles-1) * gapPerCycle);
+                    sg.appendChild(cL(c,c,c+outerRp*Math.cos(((a*dir)-90)*(Math.PI/180)),c+outerRp*Math.sin(((a*dir)-90)*(Math.PI/180)),`hsla(${a},100%,65%,0.3)`,"8,8")); 
+                });
+            }
+
+            for(let cLoop=0; cLoop<cycles; cLoop++){
+                let cycleOffset = cLoop * 360, currentRp = rP_base + (cLoop * gapPerCycle), cyclePoints = [], mnP = [];
+                let cyColor = cycleColors[cLoop % cycleColors.length];
+                let specialStyle = cLoop === 0 ? `border: 1px solid ${cyColor}; color: #fff; z-index: 90; box-shadow: 0 0 5px ${cyColor};` : `border: 2px solid ${cyColor}; color: ${cyColor}; background: rgba(0,0,0,0.9); z-index: ${90-cLoop}; box-shadow: 0 0 15px ${cyColor}; border-radius: 12px; font-weight: 900; padding: 4px 8px; font-size: 10px;`;
+                let midStyle = cLoop === 0 ? `border: 1px dashed ${cyColor}; color: #ccc; z-index: 85; box-shadow: none; font-size: 8px; background: rgba(0,0,0,0.7); opacity: 0.8; padding: 2px 4px;` : `border: 1px dashed ${cyColor}; color: ${cyColor}; background: rgba(0,0,0,0.8); z-index: ${85-cLoop}; border-radius: 8px; padding: 2px 5px; font-size: 8px; opacity: 0.7;`;
+
+                for(let a=0;a<359.9;a+=st){
+                    const r=((a*dir)-90)*(Math.PI/180), px=c+currentRp*Math.cos(r), py=c+currentRp*Math.sin(r);
+                    cyclePoints.push({x:px, y:py, c:`hsl(${a},100%,60%)`});
+                    let totalAngle = a + cycleOffset, calcPrice = (tr==="up")?Math.pow((rt+(totalAngle/180)),2):Math.pow(Math.max(0,rt-(totalAngle/180)),2);
+                    aN(w,'price-node',px,py,calcPrice.toFixed(2), null, specialStyle);
+
+                    let aM=(a+(st/2))%360, rM=((aM*dir)-90)*(Math.PI/180), mnX = c+currentRp*Math.cos(rM), mnY = c+currentRp*Math.sin(rM);
+                    mnP.push({x:mnX, y:mnY, c:`hsla(${aM},100%,60%,0.6)`});
+                    let totalAngleMid = (a + (st/2)) + cycleOffset, calcPriceMid = (tr==="up")?Math.pow((rt+(totalAngleMid/180)),2):Math.pow(Math.max(0,rt-(totalAngleMid/180)),2);
+
+                    if(document.getElementById('planShowShape').checked) aN(w,'price-node',mnX,mnY,calcPriceMid.toFixed(2), null, midStyle);
+                }
+
+                if(document.getElementById('planShowShape').checked && cyclePoints.length>2) {
+                    for(let i=0;i<cyclePoints.length;i++){
+                        let nP=(i+1===cyclePoints.length)?cyclePoints[0]:cyclePoints[i+1];
+                        let ln=cL(cyclePoints[i].x,cyclePoints[i].y,nP.x,nP.y,cyclePoints[i].c, cLoop===0 ? "0" : "6,6"); 
+                        ln.setAttribute("stroke-width", cLoop===0 ? "3" : "1.5"); ln.setAttribute("stroke-linecap","round"); sg.appendChild(ln);
+                        if(cLoop === cycles - 1) { 
+                            let sp=cL(c,c,cyclePoints[i].x,cyclePoints[i].y,`hsla(${i*(360/cyclePoints.length)},100%,60%,0.5)`,"0"); 
+                            sp.setAttribute("stroke-width","2"); sg.appendChild(sp);
+                        }
+                    }
+                    for(let i=0;i<mnP.length;i++){
+                        let nP=(i+1===mnP.length)?mnP[0]:mnP[i+1];
+                        let ln=cL(mnP[i].x,mnP[i].y,nP.x,nP.y,mnP[i].c,"8,8"); ln.setAttribute("stroke-width", cLoop===0 ? "2" : "1"); sg.appendChild(ln);
+                        if(cLoop === cycles - 1){
+                            let sp=cL(c,c,mnP[i].x,mnP[i].y,mnP[i].c,"5,5"); sp.setAttribute("stroke-width","1.5"); sg.appendChild(sp);
+                        }
+                    }
+                }
+            }
+            const rl=cL(c,c,rx2,ry2,"#00ffcc","6,6"); rl.setAttribute("stroke-width","2"); rl.id="ruler-line"; sg.appendChild(rl);
+        }
+
+        function dHx() {
+            const cv=document.getElementById('hexCanvas'), ct=cv.getContext('2d'), SZ=3800, cx=1900, cy=1900;
+            cv.width=cv.height=SZ; ct.clearRect(0,0,SZ,SZ);
+            let md=document.getElementById('hexDataType').value, bvR=document.getElementById('hexBaseInput').value, tvR=document.getElementById('hexTargetInput').value;
+            const ly=parseInt(document.getElementById('hexGridLayers').value)||12, sm=parseFloat(document.getElementById('hexStepValue').value)||1, tr=document.getElementById('hexTrendDir').value==='up'?1:-1;
+            const rR=1250, aR=1400, cR=1530, hR=1680;
+
+            ct.save(); ct.translate(cx,cy); ct.rotate(-Math.PI/6);
+            ct.fillStyle="rgba(0,255,255,0.03)"; ct.font="bold 400px Arial"; ct.textAlign="center"; ct.textBaseline="middle"; ct.fillText("Rêbar FX",0,-220);
+            ct.font="bold 160px Arial"; ct.fillStyle="rgba(179,102,255,0.03)"; ct.fillText("TIME & PRICE MATRIX",0,150); ct.restore();
+
+            for(let a=0;a<360;a+=30){
+                let rd=a*Math.PI/180, isE=(a%60===0);
+                ct.beginPath(); ct.moveTo(cx,cy); ct.lineTo(cx+hR*Math.cos(rd),cy+hR*Math.sin(rd));
+                if(isE){ ct.strokeStyle='rgba(0,255,255,0.3)'; ct.lineWidth=2.5; ct.setLineDash([]); } else { ct.strokeStyle='rgba(255,170,0,0.3)'; ct.lineWidth=2; ct.setLineDash([8,8]); }
+                ct.stroke(); ct.setLineDash([]);
+            }
+
+            ct.lineWidth=3;
+            ct.beginPath(); ct.arc(cx,cy,rR,0,2*Math.PI); ct.strokeStyle='rgba(0,255,255,0.2)'; ct.stroke();
+            ct.beginPath(); ct.arc(cx,cy,aR,0,2*Math.PI); ct.strokeStyle='rgba(179,102,255,0.3)'; ct.stroke();
+            ct.beginPath(); ct.arc(cx,cy,cR,0,2*Math.PI); ct.strokeStyle='rgba(255,204,0,0.3)'; ct.stroke();
+            ct.beginPath(); ct.arc(cx,cy,hR,0,2*Math.PI); ct.strokeStyle='rgba(51,204,255,0.4)'; ct.lineWidth=4; ct.stroke();
+
+            const zs=[{sym:"♈ ARIES",c:"#ff3333"},{sym:"♉ TAURUS",c:"#00ffcc"},{sym:"♊ GEMINI",c:"#ffff33"},{sym:"♋ CANCER",c:"#33ccff"},{sym:"♌ LEO",c:"#ff3333"},{sym:"♍ VIRGO",c:"#00ffcc"},{sym:"♎ LIBRA",c:"#ffff33"},{sym:"♏ SCORPIO",c:"#33ccff"},{sym:"♐ SAGITTARIUS",c:"#ff3333"},{sym:"♑ CAPRICORN",c:"#00ffcc"},{sym:"♒ AQUARIUS",c:"#ffff33"},{sym:"♓ PISCES",c:"#33ccff"}];
+            const ms=["Mar 21 - Apr 20","Apr 20 - May 21","May 21 - Jun 21","Jun 21 - Jul 23","Jul 23 - Aug 23","Aug 23 - Sep 23","Sep 23 - Oct 23","Oct 23 - Nov 22","Nov 22 - Dec 22","Dec 22 - Jan 20","Jan 20 - Feb 19","Feb 19 - Mar 21"];
+            ct.textAlign="center"; ct.textBaseline="middle";
+
+            for(let a=0;a<360;a+=5){
+                let rd=a*Math.PI/180, isE=(a%60===0), isT=(a%30===0&&!isE);
+                ct.beginPath(); ct.moveTo(cx+(isE?rR-40:(isT?rR-25:rR-10))*Math.cos(rd),cy+(isE?rR-40:(isT?rR-25:rR-10))*Math.sin(rd)); ct.lineTo(cx+(rR+15)*Math.cos(rd),cy+(rR+15)*Math.sin(rd));
+                if(isE){ ct.strokeStyle='#00ffff'; ct.lineWidth=4; } else if(isT){ ct.strokeStyle='#ffaa00'; ct.lineWidth=3; } else { ct.strokeStyle='#333'; ct.lineWidth=1.5; }
+                ct.stroke();
+                if(isE||isT){ ct.fillStyle=isE?'#00ffff':'#ffaa00'; ct.font=isE?'bold 34px Arial':'bold 24px Arial'; ct.fillText(a+"°",cx+(rR+50)*Math.cos(rd),cy+(rR+50)*Math.sin(rd)); }
+                if(a%30===0){
+                    let id=a/30, mR=((a+15)*Math.PI)/180;
+                    ct.save(); ct.translate(cx+(aR-65)*Math.cos(mR),cy+(aR-65)*Math.sin(mR)); ct.rotate(mR+Math.PI/2); ct.fillStyle=zs[id].c; ct.font="bold 34px Arial"; ct.shadowBlur=10; ct.shadowColor=zs[id].c; ct.fillText(zs[id].sym,0,0); ct.restore();
+                    ct.save(); ct.translate(cx+(cR-55)*Math.cos(mR),cy+(cR-55)*Math.sin(mR)); ct.rotate(mR+Math.PI/2); ct.fillStyle='#ffcc00'; ct.font="bold 26px Courier New"; ct.shadowBlur=5; ct.shadowColor='#ffcc00'; ct.fillText(ms[id],0,0); ct.restore();
+                }
+                if(a%15===0){
+                    let h=a/15; if(h===0) h=24; let ht=h.toString().padStart(2,'0')+":00";
+                    ct.beginPath(); ct.moveTo(cx+(hR-15)*Math.cos(rd),cy+(hR-15)*Math.sin(rd)); ct.lineTo(cx+(hR+15)*Math.cos(rd),cy+(hR+15)*Math.sin(rd)); ct.strokeStyle='#33ccff'; ct.lineWidth=3; ct.stroke();
+                    ct.save(); ct.translate(cx+(hR+55)*Math.cos(rd),cy+(hR+55)*Math.sin(rd)); ct.rotate(rd+Math.PI/2); ct.fillStyle='#33ccff'; ct.font="bold 28px Courier New"; ct.shadowBlur=10; ct.shadowColor='#33ccff'; ct.fillText(ht,0,0); ct.restore();
+                }
+            }
+
+            let vO, sMs=0;
+            if(md==='price') vO=parseFloat(bvR)||0;
+            else if(md==='hour'){ let p=bvR.split(':'); let d=new Date(); d.setHours(p[0]||0,p[1]||0,0,0); vO=d.getTime(); sMs=3600000*sm*tr; }
+            else if(md==='date'){ vO=new Date(bvR).getTime(); if(isNaN(vO)) vO=new Date().getTime(); sMs=86400000*sm*tr; }
+
+            let tF="";
+            if(tvR){
+                if(md==='price') tF=parseFloat(tvR).toString();
+                else if(md==='hour'){ let p=tvR.split(':'); tF=p[0].padStart(2,'0')+":"+(p[1]||"00").padStart(2,'0'); }
+                else if(md==='date'){ let d=new Date(tvR); tF=d.getDate()+"/"+(d.getMonth()+1); }
+            }
+
+            let hS=(rR-130)/(ly*1.6); if(hS>60) hS=60;
+            let dr=[{q:1,r:0},{q:0,r:1},{q:-1,r:1},{q:-1,r:0},{q:0,r:-1},{q:1,r:-1}], q=0, rr=0;
+
+            function dH(x,y,s,t,iC,tg,iE,iT){
+                ct.beginPath(); for(let i=0;i<6;i++){ let a=(Math.PI/3)*i, hx=x+s*Math.cos(a), hy=y+s*Math.sin(a); if(i===0) ct.moveTo(hx,hy); else ct.lineTo(hx,hy); } ct.closePath();
+                if(tg){ ct.fillStyle='rgba(255,51,51,0.9)'; ct.strokeStyle='#fff'; ct.lineWidth=4; }
+                else if(iC){ ct.fillStyle='rgba(255,255,255,0.2)'; ct.strokeStyle='#fff'; ct.lineWidth=2; }
+                else if(iE){ ct.fillStyle='rgba(0,255,255,0.15)'; ct.strokeStyle='#0ff'; ct.lineWidth=2; }
+                else if(iT){ ct.fillStyle='rgba(255,170,0,0.15)'; ct.strokeStyle='#fa0'; ct.lineWidth=2; }
+                else { ct.fillStyle='#060606'; ct.strokeStyle='#222'; ct.lineWidth=1.5; }
+                ct.fill(); ct.stroke();
+                if(tg||iC) ct.fillStyle='#fff'; else if(iE) ct.fillStyle='#cff'; else if(iT) ct.fillStyle='#fe3'; else ct.fillStyle='#888';
+                let iS=(tg||iE||iT||iC); ct.font=iS?`bold ${Math.max(11,s*0.32)+2}px Arial`:`${Math.max(10,s*0.3)}px Arial`; ct.fillText(t,x,y);
+            }
+
+            function gDV(){
+                let d="";
+                if(md==='price'){ d=parseFloat(vO.toFixed(2)); if(d<0)d=0; vO+=(sm*tr); }
+                else if(md==='hour'){ let dt=new Date(vO); d=dt.getHours().toString().padStart(2,'0')+":"+dt.getMinutes().toString().padStart(2,'0'); vO+=sMs; }
+                else if(md==='date'){ let dt=new Date(vO); d=dt.getDate()+"/"+(dt.getMonth()+1); vO+=sMs; }
+                return d.toString();
+            }
+
+            let fV=gDV(); dH(cx,cy,hS-2,fV,!0,fV===tF,!1,!1);
+            for(let r=1;r<ly;r++){
+                q+=dr[4].q; rr+=dr[4].r;
+                for(let i=0;i<6;i++){
+                    for(let j=0;j<r;j++){
+                        let x=cx+hS*Math.sqrt(3)*(q+rr/2), y=cy+hS*1.5*rr, dV=gDV(), iE=(j===0), iT=!1;
+                        if(r>1){ if(r%2===0&&j===r/2)iT=!0; if(r%2!==0&&(j===Math.floor(r/2)||j===Math.ceil(r/2)))iT=!0; }
+                        dH(x,y,hS-2.5,dV,!1,dV===tF,iE,iT);
+                        q+=dr[i].q; rr+=dr[i].r;
+                    }
+                }
+            }
+        }
+
+        // --- MATRIX 24 (TALISMAN) ---
+        window.isTimePriceSquared = function(price, base, timeAngle) {
+            if(price <= 0) return false;
+            let priceAngle = Math.abs(Math.sqrt(price) - Math.sqrt(base)) * 180;
+            let diff = Math.abs((priceAngle % 360) - timeAngle);
+            if(diff > 180) diff = 360 - diff;
+            return (diff <= 3 || Math.abs(diff - 45) <= 3 || Math.abs(diff - 90) <= 3 || Math.abs(diff - 180) <= 3);
+        }
+
+        window.drawSq24 = function() {
+            const canvas = document.getElementById('sq24Canvas'); if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const CANVAS_SIZE = 5600; canvas.width = canvas.height = CANVAS_SIZE;
+            const cx = CANVAS_SIZE / 2, cy = CANVAS_SIZE / 2;
+            const base = parseFloat(document.getElementById('sq24BasePrice').value) || 0;
+            const stepVal = parseFloat(document.getElementById('sq24StepValue').value) || 1;
+            const manualTimeInput = document.getElementById('sq24ManualTime').value;
+            const size = 24, rGrid = 1900, rClock = 1980; 
+            const goldenHours = [10, 11, 15, 16, 18]; 
+
+            let now = new Date(); let h = now.getHours(), m = now.getMinutes();
+            let isManual = false; if (manualTimeInput) { h = parseInt(manualTimeInput.split(':')[0]); m = parseInt(manualTimeInput.split(':')[1]); isManual = true; }
+            let liveAngleDeg = ((h + m/60) / 24) * 360; let liveRad = (liveAngleDeg - 90) * Math.PI / 180;
+            let activeColHour = h === 0 ? 24 : h; let themeColor = isManual ? "#ff3399" : "#00ffcc";
+
+            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+            ctx.beginPath(); ctx.arc(cx, cy, rClock, 0, 2 * Math.PI); ctx.lineWidth = 6; ctx.strokeStyle = "rgba(0, 255, 204, 0.4)"; ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, cy, rClock - 20, 0, 2 * Math.PI); ctx.lineWidth = 3; ctx.strokeStyle = "rgba(212, 175, 55, 0.3)"; ctx.stroke();
+
+            for(let a = 0; a < 360; a += 15) {
+                let rad = (a * Math.PI) / 180 - Math.PI/2;
+                let hourUnit = (a/15 === 0) ? 24 : a/15;
+                let isGolden = goldenHours.includes(hourUnit); let isActiveHour = (hourUnit === activeColHour);
+                let strokeCol = isActiveHour ? themeColor : (isGolden ? '#d4af37' : 'rgba(255,255,255,0.5)');
+
+                ctx.lineWidth = isActiveHour ? 12 : (isGolden ? 10 : 5); ctx.strokeStyle = strokeCol;
+                ctx.beginPath(); ctx.moveTo(cx + (rClock - 35) * Math.cos(rad), cy + (rClock - 35) * Math.sin(rad));
+                ctx.lineTo(cx + (rClock + 35) * Math.cos(rad), cy + (rClock + 35) * Math.sin(rad)); ctx.stroke();
+
+                ctx.fillStyle = isActiveHour ? themeColor : (isGolden ? '#d4af37' : 'rgba(255,255,255,0.6)');
+                ctx.font = isActiveHour ? "bold 85px monospace" : (isGolden ? "bold 75px monospace" : "bold 55px monospace");
+                ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                if(isActiveHour || isGolden) { ctx.shadowBlur = 20; ctx.shadowColor = ctx.fillStyle; }
+                ctx.fillText((isGolden && !isActiveHour ? "⭐ " : "") + hourUnit + "H", cx + (rClock + 110) * Math.cos(rad), cy + (rClock + 110) * Math.sin(rad)); ctx.shadowBlur = 0;
+            }
+
+            ctx.beginPath(); ctx.moveTo(cx + (rClock - 40) * Math.cos(liveRad), cy + (rClock - 40) * Math.sin(liveRad));
+            ctx.lineTo(cx + (rClock + 40) * Math.cos(liveRad), cy + (rClock + 40) * Math.sin(liveRad));
+            ctx.lineWidth = 10; ctx.strokeStyle = "#fff"; ctx.shadowBlur = 20; ctx.shadowColor = themeColor; ctx.stroke(); ctx.shadowBlur = 0;
+
+            let cellSize = (rGrid * 1.35) / size; let startX = cx - (size * cellSize) / 2, startY = cy - (size * cellSize) / 2;
+
+            for(let row = 0; row < size; row++) {
+                for(let col = 0; col < size; col++) {
+                    let colHour = col + 1; 
+                    // هەمیشە ئاراستەی سەرەوەیە لە تەلەسمی گەن
+                    let val = parseFloat((base + ((23 - row) * size + col) * stepVal).toFixed(2));
+
+                    let x = startX + col * cellSize, y = startY + row * cellSize;
+                    let isActiveCol = (colHour === activeColHour); let isGolden = goldenHours.includes(colHour);
+                    let isSquaring = isActiveCol && window.isTimePriceSquared(val, base, (colHour * 15) % 360);
+
+                    let cellW = cellSize - 6; let cellGrad = ctx.createLinearGradient(x, y, x + cellW, y + cellW);
+                    if (isSquaring) { cellGrad.addColorStop(0, themeColor); cellGrad.addColorStop(1, '#006666'); }
+                    else if (isGolden) { cellGrad.addColorStop(0, '#262000'); cellGrad.addColorStop(1, '#1a1500'); }
+                    else { cellGrad.addColorStop(0, '#16161f'); cellGrad.addColorStop(1, '#0a0a0f'); }
+
+                    ctx.fillStyle = cellGrad; ctx.fillRect(x + 3, y + 3, cellW, cellW);
+                    ctx.strokeStyle = isSquaring ? "#fff" : (isActiveCol ? "rgba(0, 255, 204, 0.4)" : (isGolden ? "rgba(212, 175, 55, 0.4)" : "rgba(255,255,255,0.08)"));
+                    ctx.lineWidth = isSquaring ? 2 : 1; ctx.strokeRect(x + 3, y + 3, cellW, cellW);
+
+                    ctx.fillStyle = isSquaring ? "#000" : (isActiveCol ? "#fff" : (isGolden ? "#ccc" : "#778"));
+                    ctx.font = isSquaring ? `bold ${cellW * 0.4}px monospace` : `bold ${cellW * 0.3}px monospace`;
+                    ctx.fillText(val, x + cellSize/2, y + cellSize/2 + (cellW * 0.1));
+                }
+            }
+
+            ctx.beginPath(); ctx.arc(cx, cy, 220, 0, 2*Math.PI); ctx.fillStyle = "#05050a"; ctx.fill(); ctx.strokeStyle = themeColor; ctx.lineWidth = 5; ctx.stroke();
+            ctx.fillStyle = "#fff"; ctx.font = "bold 35px Tahoma"; ctx.fillText("سەنتەر", cx, cy - 45);
+            ctx.fillStyle = themeColor; ctx.font = "bold 75px monospace"; ctx.shadowBlur = 20; ctx.shadowColor = themeColor; ctx.fillText(base, cx, cy + 30); ctx.shadowBlur = 0;
+        }
+
+        // --- BOT DRAG & LOGIC ---
+        let isDraggingBot = false, botStartX, botStartY, initialBotX, initialBotY;
+        const botBtn = document.getElementById('rebar-bot-btn');
+
+        function initBotDrag() {
+            if(!botBtn) return;
+            botBtn.addEventListener('mousedown', dragBotStart); document.addEventListener('mousemove', dragBotMove); document.addEventListener('mouseup', dragBotEnd);
+            botBtn.addEventListener('touchstart', dragBotStart, {passive: false}); document.addEventListener('touchmove', dragBotMove, {passive: false}); document.addEventListener('touchend', dragBotEnd);
+        }
+
+        function dragBotStart(e) {
+            if(e.type === 'touchstart') { botStartX = e.touches[0].clientX; botStartY = e.touches[0].clientY; } else { botStartX = e.clientX; botStartY = e.clientY; }
+            initialBotX = botBtn.offsetLeft; initialBotY = botBtn.offsetTop; isDraggingBot = true; 
+        }
+
+        function dragBotMove(e) {
+            if (!isDraggingBot) return; let currentX, currentY;
+            if(e.type === 'touchmove') { currentX = e.touches[0].clientX; currentY = e.touches[0].clientY; e.preventDefault(); } else { currentX = e.clientX; currentY = e.clientY; }
+            botBtn.style.left = (initialBotX + (currentX - botStartX)) + 'px'; botBtn.style.top = (initialBotY + (currentY - botStartY)) + 'px'; botBtn.style.bottom = 'auto'; botBtn.style.right = 'auto';
+        }
+
+        function dragBotEnd(e) {
+            if(!isDraggingBot) return; isDraggingBot = false;
+            let finalX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX; let finalY = e.type === 'touchend' ? e.changedTouches[0].clientY : e.clientY;
+            if (Math.abs(finalX - botStartX) < 10 && Math.abs(finalY - botStartY) < 10) window.openBot();
+        }
+
+        window.updateBotTime = function() {
+            let h = new Date().getHours(); let manual = document.getElementById('sq24ManualTime').value;
+            if(manual) h = parseInt(manual.split(':')[0]);
+            document.getElementById('bot-greeting').innerText = `سڵاو! ئۆردەر بۆ کاتژمێر ${h === 0 ? 24 : h}:00 ئامادە دەکەم، نرخی ئێستام پێ بڵێ:`;
+        }
+
+        window.openBot = function() { window.updateBotTime(); document.getElementById('bot-modal').style.display = 'block'; document.getElementById('bot-results').style.display = 'none'; document.getElementById('botPriceInput').value = ''; }
+        window.closeBot = function() { document.getElementById('bot-modal').style.display = 'none'; }
+
+        // --- مێشکی بۆتەکە بۆ ٤ ئامانج ---
+        window.generateMatrixSignal = function() {
+            let p = parseFloat(document.getElementById('botPriceInput').value);
+            if(!p || p <= 0) { alert("تکایە نرخێکی دروست بنووسە!"); return; }
+
+            let base = parseFloat(document.getElementById('sq24BasePrice').value) || 0;
+            let stepVal = parseFloat(document.getElementById('sq24StepValue').value) || 1;
+
+            let h = new Date().getHours(); let manual = document.getElementById('sq24ManualTime').value;
+            if(manual) h = parseInt(manual.split(':')[0]);
+            let targetHour = h === 0 ? 24 : h; let col = targetHour - 1; 
+
+            // هەمیشە ئاراستەی سەرەوەیە لە هاوکێشەکەدا
+            let n_float = (p - base - col * stepVal) / (24 * stepVal);
+
+            let n1 = Math.floor(n_float);
+            let n2 = Math.ceil(n_float);
+            if (n1 === n2) n2 = n1 + 1; 
+
+            let val1 = base + (n1 * 24 + col) * stepVal;
+            let val2 = base + (n2 * 24 + col) * stepVal;
+
+            let gridBelow = parseFloat(Math.min(val1, val2).toFixed(2));
+            let gridAbove = parseFloat(Math.max(val1, val2).toFixed(2));
+
+            let dist = gridAbove - gridBelow;
+            let q1 = dist * 0.25, q2 = dist * 0.50, q3 = dist * 0.75;
+
+            let b1 = parseFloat((gridBelow + q1).toFixed(2)), b2 = parseFloat((gridBelow + q2).toFixed(2)), b3 = parseFloat((gridBelow + q3).toFixed(2)), b4 = gridAbove;
+            let s1 = parseFloat((gridAbove - q1).toFixed(2)), s2 = parseFloat((gridAbove - q2).toFixed(2)), s3 = parseFloat((gridAbove - q3).toFixed(2)), s4 = gridBelow;
+
+            let slOffset = parseFloat((stepVal * 1.5).toFixed(2)); 
+            let buySL = parseFloat((gridBelow - slOffset).toFixed(2));
+            let sellSL = parseFloat((gridAbove + slOffset).toFixed(2));
+
+            document.getElementById('bot-status').innerHTML = `
+                📊 <b>شیکاری بۆ کاتژمێر ${targetHour}:00</b><br>
+                لە نەخشەکەدا نرخەکەت دەکەوێتە نێوان:<br>
+                <span style="color:var(--neon-gold); font-size:18px; display:inline-block; margin-top:5px;">[ ${gridBelow} ] و [ ${gridAbove} ]</span>
+            `;
+
+            document.getElementById('buyBox').innerHTML = `
+                <b>🟢 پلانی کڕین لەناو کەناڵ (BUY):</b><br>
+                چوونەژوورەوە: ئەگەر بەر <b>${gridBelow}</b> کەوت و گەڕایەوە<br>
+                🎯 TP1 (چارەک): <span class="target-val">${b1}</span><br>
+                🎯 TP2 (نیوە): <span class="target-val">${b2}</span><br>
+                🎯 TP3 (سێ چارەک): <span class="target-val">${b3}</span><br>
+                🎯 TP4 (سەقف): <span class="target-val">${b4}</span><br>
+                🛑 ستۆپ لۆس: <span style="color:#ff3333; font-weight:bold; font-family:monospace;">${buySL}</span>
+            `;
+
+            document.getElementById('sellBox').innerHTML = `
+                <b>🔴 پلانی فرۆشتن لەناو کەناڵ (SELL):</b><br>
+                چوونەژوورەوە: ئەگەر بەر <b>${gridAbove}</b> کەوت و دابەزی<br>
+                🎯 TP1 (چارەک): <span class="target-val">${s1}</span><br>
+                🎯 TP2 (نیوە): <span class="target-val">${s2}</span><br>
+                🎯 TP3 (سێ چارەک): <span class="target-val">${s3}</span><br>
+                🎯 TP4 (بنکە): <span class="target-val">${s4}</span><br>
+                🛑 ستۆپ لۆس: <span style="color:#ff3333; font-weight:bold; font-family:monospace;">${sellSL}</span>
+            `;
+
+            document.getElementById('bot-results').style.display = 'block';
+        }
+
+        // --- MAP ZOOM & DRAG ---
+        let sc=window.innerWidth<600?0.2:0.3, px=0, py=0, dg=false, rdg=false, sx, sy, iDist=0;
+        const vM=document.getElementById('viewport-maps'), zL=document.getElementById('zoom-layer'), gw=document.getElementById('container-planetary');
+        function upT(){ zL.style.transform=`translate(${px}px, ${py}px) scale(${sc})`; }
+        function getEP(e){ return e.touches&&e.touches.length>0?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY}; }
+        function chkC(x,y){
+            if(!document.getElementById('planShowRuler').checked || document.getElementById('mainChartMode').value!=='planetary') return false;
+            let r=gw.getBoundingClientRect(); return Math.hypot(x-(r.left+r.width/2), y-(r.top+r.height/2))<150;
+        }
+        function upR(x,y){
+            let r=gw.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2, rad=Math.atan2(y-cy,x-cx), deg=rad*180/Math.PI;
+            const tr=document.getElementById('planTrend').value, dir=(tr==="up")?1:-1, base=parseFloat(document.getElementById('planPrice').value)||0, root=Math.sqrt(base);
+            let a=deg+90; if(a<0)a+=360; if(dir===-1)a=360-a;
+            let lx=500+470*Math.cos(rad), ly=500+470*Math.sin(rad), rl=document.getElementById('ruler-line');
+            if(rl){ rl.setAttribute("x2",lx); rl.setAttribute("y2",ly); }
+            let cp=(tr==="up")?Math.pow((root+(a/180)),2):Math.pow(Math.max(0,root-(a/180)),2);
+            document.getElementById('ruler-ang-val').innerText=a.toFixed(1)+"°"; document.getElementById('ruler-prc-val').innerText=cp.toFixed(2);
+            let rb=document.getElementById('smart-ruler-box'); rb.style.display="block"; rb.style.left=lx+"px"; rb.style.top=ly+"px";
+        }
+
+        vM.addEventListener('mousedown',e=>{
+            if(e.target.closest('.sidebar')||e.target.closest('.header')||e.target.closest('#rebar-bot-btn')||e.target.closest('#bot-modal')) return;
+            let p=getEP(e); if(chkC(p.x,p.y)){ rdg=true; upR(p.x,p.y); } else { dg=true; sx=p.x; sy=p.y; vM.style.cursor='grabbing'; }
+        });
+        window.addEventListener('mousemove',e=>{
+            if(rdg){ let p=getEP(e); upR(p.x,p.y); } else if(dg){ px+=(e.clientX-sx); py+=(e.clientY-sy); sx=e.clientX; sy=e.clientY; upT(); }
+        });
+        window.addEventListener('mouseup',()=>{ dg=false; rdg=false; vM.style.cursor='grab'; });
+        vM.addEventListener('wheel',e=>{
+            if(e.target.closest('.sidebar')||e.target.closest('.header')||e.target.closest('#bot-modal')) return;
+            e.preventDefault(); sc+=e.deltaY*-0.001; sc=Math.min(Math.max(0.05,sc),5); upT();
+        }, {passive:false});
+        vM.addEventListener('touchstart',e=>{
+            if(e.target.closest('.sidebar')||e.target.closest('.header')||e.target.closest('#rebar-bot-btn')||e.target.closest('#bot-modal')) return;
+            if(e.touches.length===2){ dg=false; rdg=false; iDist=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY); }
+            else { let p=getEP(e); if(chkC(p.x,p.y)){ rdg=true; upR(p.x,p.y); } else { dg=true; sx=p.x; sy=p.y; } }
+        }, {passive:false});
+        vM.addEventListener('touchmove',e=>{
+            if(e.target.closest('.sidebar')||e.target.closest('.header')||e.target.closest('#rebar-bot-btn')||e.target.closest('#bot-modal')) return;
+            if(e.touches.length===2){
+                e.preventDefault(); const d=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY);
+                sc=Math.min(Math.max(0.05,sc*(d/iDist)),5); iDist=d; upT();
+            } else if(rdg){ e.preventDefault(); let p=getEP(e); upR(p.x,p.y); } else if(dg){ e.preventDefault(); px+=(e.touches[0].clientX-sx); py+=(e.touches[0].clientY-sy); sx=e.touches[0].clientX; sy=e.touches[0].clientY; upT(); }
+        }, {passive:false});
+        window.addEventListener('touchend',()=>{ dg=false; rdg=false; });
+
+        px=(window.innerWidth-6000)/2; py=(window.innerHeight-6000)/2; upT();
+        initBotDrag();
+    })();
+    </script>
 </body>
 </html>
