@@ -3,133 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMIR GOLD Analyser</title>
+    <title>AMIR GANN STRATEGY</title>
     <style>
+        :root {
+            --bg-color: #0b0c10;
+            --container-bg: #11141a;
+            --primary-color: #66fcf1;
+            --secondary-color: #45f3ff;
+            --text-color: #c5c6c7;
+            --gold-color: #ffd700;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b0c10;
-            color: #c5c6c7;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
         .container {
-            background-color: #1f2833;
+            background-color: var(--container-bg);
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
             width: 100%;
-            max-width: 500px;
-            padding: 30px;
-            border: 1px solid #45f3ff;
+            max-width: 480px;
+            padding: 20px;
+            border: 1px solid #1f2833;
+            margin-bottom: 20px;
         }
-        h1 {
+        .header-box {
+            background-color: #1f232b;
+            border: 1px solid var(--gold-color);
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            color: #45f3ff;
-            margin-bottom: 25px;
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: bold;
+            color: var(--gold-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 1px dashed #333;
+            padding-bottom: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #66fcf1;
-            font-size: 14px;
+            margin-bottom: 6px;
+            color: #8892b0;
+            font-size: 13px;
         }
-        input[type="number"] {
+        input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #45f3ff;
+            padding: 10px;
+            border: 1px solid #2e3742;
             background-color: #0b0c10;
             color: #fff;
             border-radius: 6px;
             box-sizing: border-box;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
-            text-align: left;
+        }
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+        }
+        .market-degree {
+            background-color: #000;
+            border: 1px dashed var(--secondary-color);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin: 15px 0;
+        }
+        .checkbox-group {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            background: #161b22;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+        }
+        .checkbox-item input {
+            width: auto;
         }
         button {
             width: 100%;
-            padding: 14px;
-            background-color: #45f3ff;
-            color: #0b0c10;
+            padding: 12px;
+            background-color: #a71d2a;
+            color: white;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
         button:hover {
-            background-color: #66fcf1;
-            box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+            background-color: #c92a3a;
         }
-        .result-box {
-            margin-top: 25px;
-            padding: 15px;
+        .wheel-container {
+            width: 100%;
+            max-width: 480px;
+            background: #11141a;
+            border-radius: 12px;
+            padding: 25px 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border: 1px solid #1f2833;
+        }
+        canvas {
             background-color: #0b0c10;
-            border-left: 4px solid #66fcf1;
-            border-radius: 4px;
-            display: none;
-        }
-        .result-item {
-            margin: 10px 0;
-            font-size: 16px;
-        }
-        .result-value {
-            color: #45f3ff;
-            font-weight: bold;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>AMIR GOLD Analyser</h1>
+    <div class="header-box">
+        🎡 نەخشەی گەن (Wheel)
+    </div>
+
+    <div class="section-title">🧮 حیساباتی پلەی بازاڕ</div>
     
     <div class="input-group">
-        <label>نرخی زێڕ (XAU/USD):</label>
-        <input type="number" id="goldPrice" placeholder="بۆ نموونە: 2350">
+        <label>نرخی سەنتەر (دەستپێک):</label>
+        <input type="number" id="centerPrice" value="2304" oninput="drawGannWheel()">
     </div>
     
-    <button onclick="calculateGann()">شیکارکردن</button>
-    
-    <div class="result-box" id="resultBox">
-        <div class="result-item">ئاستی بەرگری یەکەم: <span class="result-value" id="res1">0</span></div>
-        <div class="result-item">ئاستی بەرگری دووەم: <span class="result-value" id="res2">0</span></div>
-        <div class="result-item">ئاستی پاڵپشتی یەکەم: <span class="result-value" id="sup1">0</span></div>
-        <div class="result-item">ئاستی پاڵپشتی دووەم: <span class="result-value" id="sup2">0</span></div>
+    <div class="input-group">
+        <label>یەکەم گەڕانەوە (لوتکە/بنکە):</label>
+        <input type="number" id="firstTurn" placeholder="نرخی لوتکە داخل بکە" oninput="drawGannWheel()">
     </div>
+
+    <div class="market-degree">
+        پلەی بازاڕ: <span id="marketDegree" style="color: var(--secondary-color);">--°</span>
+    </div>
+
+    <div class="section-title">🧭 ئاراستە و شێوە و سووڕ</div>
+    
+    <div class="input-group">
+        <label>ئاراستە:</label>
+        <select id="direction" onchange="drawGannWheel()">
+            <option value="UP">( + ) UP</option>
+            <option value="DOWN">( - ) DOWN</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>گۆشە:</label>
+        <select id="angles" onchange="drawGannWheel()">
+            <option value="45">٨ گۆشە (45°)</option>
+            <option value="90">٤ گۆشە (90°)</option>
+            <option value="180">٢ گۆشە (180°)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>سووڕ:</label>
+        <select id="cycles" onchange="drawGannWheel()">
+            <option value="1">١ سووڕ (360°)</option>
+            <option value="2">٢ سووڕ (720°)</option>
+            <option value="3">٣ سووڕ (1080°)</option>
+        </select>
+    </div>
+
+    <div class="checkbox-group">
+        <div class="checkbox-item">
+            <input type="checkbox" id="showRuler" checked onchange="drawGannWheel()">
+            <label for="showRuler" style="margin:0; color:#fff;">Ruler</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="showShape" checked onchange="drawGannWheel()">
+            <label for="showShape" style="margin:0; color:#fff;">Shape</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="showFan" checked onchange="drawGannWheel()">
+            <label for="showFan" style="margin:0; color:#fff;">Fan</label>
+        </div>
+    </div>
+
+    <button onclick="resetValues()">چوونە دەرەوە (سڕینەوەی کلیل)</button>
+</div>
+
+<div class="wheel-container">
+    <canvas id="gannCanvas" width="340" height="340"></canvas>
 </div>
 
 <script>
-    function calculateGann() {
-        const price = parseFloat(document.getElementById('goldPrice').value);
-        if (isNaN(price) || price <= 0) {
-            alert('تکایە نرخێکی ڕاست درۆست داخل بکە');
-            return;
+    function drawGannWheel() {
+        const canvas = document.getElementById('gannCanvas');
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const centerPrice = parseFloat(document.getElementById('centerPrice').value) || 0;
+        const firstTurn = parseFloat(document.getElementById('firstTurn').value) || 0;
+        const direction = document.getElementById('direction').value;
+        const numAngles = parseInt(document.getElementById('angles').value);
+        const maxCycles = parseInt(document.getElementById('cycles').value);
+        
+        const showRuler = document.getElementById('showRuler').checked;
+        const showShape = document.getElementById('showShape').checked;
+        const showFan = document.getElementById('showFan').checked;
+
+        // ئەژمارکردنی پلەی بازاڕ
+        if (centerPrice > 0 && firstTurn > 0) {
+            let diff = Math.abs(Math.sqrt(firstTurn) - Math.sqrt(centerPrice));
+            let degree = (diff * 180).toFixed(1);
+            document.getElementById('marketDegree').innerText = degree + "°";
+        } else {
+            document.getElementById('marketDegree').innerText = "--°";
         }
-        
-        // هاوکێشەی گان بۆ تاقیکردنەوە
-        const root = Math.sqrt(price);
-        const r1 = Math.pow(root + 0.125, 2);
-        const r2 = Math.pow(root + 0.25, 2);
-        const s1 = Math.pow(root - 0.125, 2);
-        const s2 = Math.pow(root - 0.25, 2);
-        
-        document.getElementById('res1').innerText = r1.toFixed(2);
-        document.getElementById('res2').innerText = r2.toFixed(2);
-        document.getElementById('sup1').innerText = s1.toFixed(2);
-        document.getElementById('sup2').innerText = s2.toFixed(2);
-        
-        document.getElementById('resultBox').style.display = 'block';
+
+        // کێشانی بازنەکان
+        const maxRadius = 150;
+        const step = maxRadius / (maxCycles + 1);
+
+        for (let i = 1; i <= maxCycles + 1; i++) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, step * i, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // کێشانی هێڵەکانی Fan
+        if (showFan) {
+            for (let a = 0; a < 360; a += 45) {
+                let rad = (a * Math.PI) / 180;
+                ctx.beginPath();
+                ctx.moveTo(cx, cx);
+                ctx.lineTo(cx + maxRadius * Math.cos(rad), cy + maxRadius * Math.sin(rad));
+                ctx.strokeStyle = 'rgba(102, 252, 241, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        // کێشانی ئەندازەیی Shape (چوارگۆشە یان هەشتگۆشە بەپێی ڕێکخستنەکە)
+        if (showShape) {
+            ctx.beginPath();
+            let points = 360 / numAngles;
+            for (let i = 0; i <= points; i++) {
+                let angle = i * numAngles;
+                let rad = (angle * Math.PI) / 180;
+                let r = maxRadius;
+                if (i === 0) ctx.moveTo(cx + r * Math.cos(rad), cy + r * Math.sin(rad));
+                else ctx.lineTo(cx + r * Math.cos(rad), cy + r * Math.sin(rad));
+            }
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        // کێشانی سەنتەر
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffd700';
+        ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(centerPrice, cx, cy);
+
+        // بڵاوکردنەوەی نرخەکان لەسەر چەرخەکە (Ruler)
+        if (showRuler && centerPrice > 0) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px sans-serif';
+            
+            let currentPrice = centerPrice;
+            let totalSteps = numAngles === 45 ? 8 : (numAngles === 90 ? 4 : 2);
+            
+            let factor = direction === 'UP' ? 1 : -1;
+            let stepIndex = 1;
+
+            for (let c = 1; c <= maxCycles; c++) {
+                let r = step * (c + 1);
+                for (let s = 0; s < totalSteps; s++) {
+                    let angle = s * numAngles;
+                    let rad = (angle * Math.PI) / 180;
+                    
+                    // هاوکێشەی ماتماتیکی چەرخی گۆشەی گەن
+                    let stepValue = (numAngles / 180) * stepIndex;
+                    let nextPrice = Math.pow(Math.sqrt(centerPrice) + (stepValue * factor * 0.125), 2);
+                    
+                    let tx = cx + (r - 10) * Math.cos(rad);
+                    let ty = cy + (r - 10) * Math.sin(rad);
+                    
+                    ctx.fillText(Math.round(nextPrice), tx, ty);
+                    stepIndex++;
+                }
+            }
+        }
     }
+
+    function resetValues() {
+        document.getElementById('centerPrice').value = '2304';
+        document.getElementById('firstTurn').value = '';
+        drawGannWheel();
+    }
+
+    // دەستپێکردنی یەکەم کێشان کاتێک لاپەڕەکە دەکرێتەوە
+    window.onload = drawGannWheel;
 </script>
 
 </body>
