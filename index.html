@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMIR GOLD Analyser</title>
     <style>
-        /* دیزاینی گشتی و ستایلی تاریک */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0b0c10;
@@ -17,36 +16,32 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .container {
             background-color: #1f2833;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             padding: 30px;
             border: 1px solid #45f3ff;
         }
-
         h1 {
             text-align: center;
             color: #45f3ff;
             margin-bottom: 25px;
             font-size: 24px;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
-
         .input-group {
             margin-bottom: 20px;
         }
-
         label {
             display: block;
             margin-bottom: 8px;
             color: #66fcf1;
             font-size: 14px;
         }
-
         input[type="number"] {
             width: 100%;
             padding: 12px;
@@ -59,7 +54,6 @@
             outline: none;
             text-align: left;
         }
-
         button {
             width: 100%;
             padding: 14px;
@@ -72,42 +66,26 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
         button:hover {
             background-color: #66fcf1;
             box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
         }
-
-        .results {
-            margin-top: 30px;
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #0b0c10;
+            border-left: 4px solid #66fcf1;
+            border-radius: 4px;
             display: none;
         }
-
-        .results h2 {
-            color: #66fcf1;
-            font-size: 18px;
-            border-bottom: 1px solid #45f3ff;
-            padding-bottom: 8px;
+        .result-item {
+            margin: 10px 0;
+            font-size: 16px;
         }
-
-        .level-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #2f3b4c;
-        }
-
-        .level-name {
-            color: #c5c6c7;
-        }
-
-        .level-value {
+        .result-value {
+            color: #45f3ff;
             font-weight: bold;
-            font-family: monospace;
         }
-
-        .bullish { color: #00ff88; }
-        .bearish { color: #ff3366; }
     </style>
 </head>
 <body>
@@ -116,68 +94,43 @@
     <h1>AMIR GOLD Analyser</h1>
     
     <div class="input-group">
-        <label for="priceInput">نرخی دەستپێک (مثال: نرخی زێڕ یان هەر لایەنێک):</label>
-        <input type="number" id="priceInput" placeholder="0.00" step="any">
+        <label>نرخی زێڕ (XAU/USD):</label>
+        <input type="number" id="goldPrice" placeholder="بۆ نموونە: 2350">
     </div>
-
-    <button onclick="calculateGannLevels()">شیکاری و حیسابکردنی ئاستەکان</button>
-
-    <div class="results" id="resultBox">
-        <h2>ئاستەکانی بازاڕ (Levels)</h2>
-        
-        <div class="level-row">
-            <span class="level-name">ئاستی بەرهەڵستی سەرەکی (Resistance 2):</span>
-            <span class="level-value bullish" id="r2">-</span>
-        </div>
-        <div class="level-row">
-            <span class="level-name">ئاستی بەرهەڵستی سووک (Resistance 1):</span>
-            <span class="level-value bullish" id="r1">-</span>
-        </div>
-        <div class="level-row">
-            <span class="level-name">ناوچەی هاوسەنگی (Pivot Price):</span>
-            <span class="level-value" id="pivot" style="color: #45f3ff;">-</span>
-        </div>
-        <div class="level-row">
-            <span class="level-name">ئاستی پاڵپشتی سووک (Support 1):</span>
-            <span class="level-value bearish" id="s1">-</span>
-        </div>
-        <div class="level-row">
-            <span class="level-name">ئاستی پاڵپشتی سەرەکی (Support 2):</span>
-            <span class="level-value bearish" id="s2">-</span>
-        </div>
+    
+    <button onclick="calculateGann()">شیکارکردن</button>
+    
+    <div class="result-box" id="resultBox">
+        <div class="result-item">ئاستی بەرگری یەکەم: <span class="result-value" id="res1">0</span></div>
+        <div class="result-item">ئاستی بەرگری دووەم: <span class="result-value" id="res2">0</span></div>
+        <div class="result-item">ئاستی پاڵپشتی یەکەم: <span class="result-value" id="sup1">0</span></div>
+        <div class="result-item">ئاستی پاڵپشتی دووەم: <span class="result-value" id="sup2">0</span></div>
     </div>
 </div>
 
 <script>
-    function calculateGannLevels() {
-        const inputPrice = parseFloat(document.getElementById('priceInput').value);
-        
-        if (isNaN(inputPrice) || inputPrice <= 0) {
-            alert("تکایە نرخێکی ڕاست و دروست داخڵ بکە.");
+    function calculateGann() {
+        const price = parseFloat(document.getElementById('goldPrice').value);
+        if (isNaN(price) || price <= 0) {
+            alert('تکایە نرخێکی ڕاست درۆست داخل بکە');
             return;
         }
-
-        // هاوکێشەی ماتماتیکی هاوشێوەی تیۆری گان بۆ دۆزینەوەی زۆنەکان
-        const root = Math.sqrt(inputPrice);
         
-        // حیسابکردنی زەویەکان (Angles) بەپێی بنچینەی ماتماتیکی گان
-        const r1_val = Math.pow(root + 0.25, 2); // 45 Degrees
-        const r2_val = Math.pow(root + 0.50, 2); // 90 Degrees
-        const s1_val = Math.pow(root - 0.25, 2);
-        const s2_val = Math.pow(root - 0.50, 2);
-
-        // نیشاندانی ئەنجامەکان لە لاپەڕەکەدا
-        document.getElementById('pivot').innerText = inputPrice.toFixed(2);
-        document.getElementById('r1').innerText = r1_val.toFixed(2);
-        document.getElementById('r2').innerText = r2_val.toFixed(2);
-        document.getElementById('s1').innerText = s1_val.toFixed(2);
-        document.getElementById('s2').innerText = s2_val.toFixed(2);
-
-        // دەرخستنی بۆکسی ئەنجامەکان
+        // هاوکێشەی گان بۆ تاقیکردنەوە
+        const root = Math.sqrt(price);
+        const r1 = Math.pow(root + 0.125, 2);
+        const r2 = Math.pow(root + 0.25, 2);
+        const s1 = Math.pow(root - 0.125, 2);
+        const s2 = Math.pow(root - 0.25, 2);
+        
+        document.getElementById('res1').innerText = r1.toFixed(2);
+        document.getElementById('res2').innerText = r2.toFixed(2);
+        document.getElementById('sup1').innerText = s1.toFixed(2);
+        document.getElementById('sup2').innerText = s2.toFixed(2);
+        
         document.getElementById('resultBox').style.display = 'block';
     }
 </script>
 
 </body>
 </html>
-
