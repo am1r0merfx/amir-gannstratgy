@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMIR GANN ADVANCED BOT</title>
+    <title>AMIR GANN FULL STRATEGY</title>
     <style>
         :root {
             --bg-main: #06090d;
@@ -215,7 +215,7 @@
 
 <div class="container">
     <div class="header-title">
-        🎡 سیستمی پێشکەوتووی ئۆتۆماتیکی ستراتیژی جان
+        🎡 سیستمی گشتگیر و هۆشمەندی گۆشەکانی جان (Full Angles)
     </div>
 
     <div class="section-title">📊 داتاکانی نرخ</div>
@@ -223,24 +223,26 @@
     <label>نرخی سەنتەر (دەستپێکی چەرخ):</label>
     <input type="number" id="centerPrice" value="2300" oninput="runGannEngine()">
     
-    <label>نرخی ئێستای بازاڕ (بۆ پشکنینی سیگناڵ):</label>
+    <label>نرخی ئێستای بازاڕ (بۆ چاودێری بۆتەکە):</label>
     <input type="number" id="currentPrice" value="2328" oninput="runGannEngine()">
 
-    <div class="section-title">🧭 ڕێکخستنی ستراتیژی جان</div>
+    <div class="section-title">🧭 ڕێکخستنی ستراتیژی و دیاریکردنی گۆشەکان</div>
     
-    <label>دابەشکاری گۆشەکان:</label>
-    <select id="angles" onchange="runGannEngine()">
-        <option value="45">٨ گۆشەیی (45° - پڕۆفیشناڵ)</option>
-        <option value="90">٤ گۆشەیی (90°)</option>
+    <label>پۆلێنکردنی گۆشەکانی جان (Gann Angles Set):</label>
+    <select id="anglePreset" onchange="runGannEngine()">
+        <option value="all">هەموو گۆشەکان (45°, 90°, 135°, 180°, 225°, 270°, 315°, 360°)</option>
+        <option value="cardinal">گۆشە سەرەکییەکان - Cardinal (90°, 180°, 270°, 360°)</option>
+        <option value="ordinal">گۆشە لاوەکییەکان - Ordinal (45°, 135°, 225°, 315°)</option>
+        <option value="trine">گۆشە سێینە فەلەکییەکان (120°, 240°)</option>
     </select>
 
-    <div class="section-title">📋 خشتەی ئاستەکانی بەرگری و پشتگیری (Gann Levels)</div>
+    <div class="section-title">📋 خشتەی سەرجەم ئاستە کاتی و ئەندازیارییەکانی جان</div>
     <table class="gann-table">
         <thead>
             <tr>
-                <th>قۆناغ</th>
-                <th>🔴 ئاستی بەرگری (Resistance)</th>
-                <th>🟢 ئاستی پشتگیری (Support)</th>
+                <th>گۆشە</th>
+                <th>🔴 هێڵی بەرگری (Resistance)</th>
+                <th>🟢 هێڵی پشتگیری (Support)</th>
             </tr>
         </thead>
         <tbody id="gannTableBody">
@@ -249,7 +251,7 @@
 
     <div class="bot-box">
         <div class="bot-header">
-            <span style="font-weight: bold; color: var(--accent-neon); font-size: 13px;">🤖 بۆتی ستراتیژی جان (Hourly Monitor)</span>
+            <span style="font-weight: bold; color: var(--accent-neon); font-size: 13px;">🤖 بۆتی چاودێری کاتژمێری گۆشەکانی جان</span>
             <span class="bot-status" id="botTime">Scan Log</span>
         </div>
         
@@ -262,36 +264,45 @@
 </div>
 
 <script>
+    function getSelectedAngles() {
+        const preset = document.getElementById('anglePreset').value;
+        if (preset === 'cardinal') return [90, 180, 270, 360];
+        if (preset === 'ordinal') return [45, 135, 225, 315];
+        if (preset === 'trine') return [120, 240];
+        return [45, 90, 135, 180, 225, 270, 315, 360]; // All
+    }
+
     function runGannEngine() {
         updateClock();
         const centerPrice = parseFloat(document.getElementById('centerPrice').value) || 0;
         const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
-        const angleStep = parseInt(document.getElementById('angles').value);
 
         if (centerPrice <= 0) return;
 
         let levels = [];
         let baseRoot = Math.sqrt(centerPrice);
+        let activeAngles = getSelectedAngles();
         
         let tableHtml = "";
-        for (let i = 1; i <= 4; i++) {
-            let stepValue = (angleStep / 180) * i * 0.125;
-            let resLevel = Math.pow(baseRoot + stepValue, 2);
-            let supLevel = Math.pow(baseRoot - stepValue, 2);
+        activeAngles.forEach(angle => {
+            // هاوکار تێکڕای گۆشەکە بەپێی بیرکاری چەرخی ٩
+            let stepValue = (angle / 360) * 2; 
+            let resLevel = Math.pow(baseRoot + (stepValue * 0.125), 2);
+            let supLevel = Math.pow(baseRoot - (stepValue * 0.125), 2);
             
-            levels.push({ resistance: resLevel, support: supLevel, index: i });
+            levels.push({ angle: angle, resistance: resLevel, support: supLevel });
             
             tableHtml += `
                 <tr>
-                    <td>ئاستی ${i}</td>
+                    <td>گۆشەی ${angle}°</td>
                     <td class="res-text">${Math.round(resLevel)}</td>
                     <td class="sup-text">${Math.round(supLevel)}</td>
                 </tr>`;
-        }
+        });
         document.getElementById('gannTableBody').innerHTML = tableHtml;
 
         processBotSignal(currentPrice, levels);
-        drawWheel(centerPrice, levels);
+        drawWheel(centerPrice, activeAngles);
     }
 
     function processBotSignal(currentPrice, levels) {
@@ -299,10 +310,17 @@
         
         let closestRes = levels[0].resistance;
         let closestSup = levels[0].support;
+        let activeAngle = levels[0].angle;
 
         levels.forEach(lvl => {
-            if (lvl.resistance > currentPrice && lvl.resistance < closestRes) closestRes = lvl.resistance;
-            if (lvl.support < currentPrice && lvl.support > closestSup) closestSup = lvl.support;
+            if (lvl.resistance > currentPrice && lvl.resistance < closestRes) {
+                closestRes = lvl.resistance;
+                activeAngle = lvl.angle;
+            }
+            if (lvl.support < currentPrice && lvl.support > closestSup) {
+                closestSup = lvl.support;
+                activeAngle = lvl.angle;
+            }
         });
 
         let resDiff = Math.abs(currentPrice - closestRes);
@@ -311,45 +329,45 @@
         let detailsHtml = "";
 
         if (resDiff <= 4) { 
-            let sl = closestRes + 8; 
-            let tp1 = currentPrice - (resDiff * 2) - 5;
-            let tp2 = closestSup + 5;
+            let sl = closestRes + 7; 
+            let tp1 = currentPrice - (resDiff * 2) - 6;
+            let tp2 = closestSup + 4;
             
             detailsHtml = `
                 <div class="signal-card signal-sell">
-                    <span class="signal-badge badge-sell">🔴 SIGNAL: SELL (Resistance Hit)</span>
-                    <div>بۆت تێبینی کرد: نرخ لە هێڵی بەرگری جان نێزیک بووەتەوە و گەڕاوەتەوە.</div>
+                    <span class="signal-badge badge-sell">🔴 سیگناڵی فرۆشتن: SELL (گۆشەی ${activeAngle}°)</span>
+                    <div>بۆت تێبینی کرد: نرخ گەیشتە بەربەستی گرنگی جان لە گۆشەی ${activeAngle}° و ڕەتکرایەوە.</div>
                     <div class="levels-grid">
-                        <div class="level-item">🎯 نرخ: <b>${Math.round(currentPrice)}</b></div>
-                        <div class="level-item" style="color:#da3637;">🛑 Stop Loss: <b>${Math.round(sl)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 Target 1: <b>${Math.round(tp1)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 Target 2: <b>${Math.round(tp2)}</b></div>
+                        <div class="level-item">🎯 نرخی چوونە ناو: <b>${Math.round(currentPrice)}</b></div>
+                        <div class="level-item" style="color:#da3637;">🛑 ستۆپ لۆز (SL): <b>${Math.round(sl)}</b></div>
+                        <div class="level-item" style="color:#2ea44f;">💰 ئامانجی یەکەم (TP1): <b>${Math.round(tp1)}</b></div>
+                        <div class="level-item" style="color:#2ea44f;">💰 ئامانجی دووەم (TP2): <b>${Math.round(tp2)}</b></div>
                     </div>
                 </div>`;
         } else if (supDiff <= 4) { 
-            let sl = closestSup - 8; 
-            let tp1 = currentPrice + (supDiff * 2) + 5;
-            let tp2 = closestRes - 5;
+            let sl = closestSup - 7; 
+            let tp1 = currentPrice + (supDiff * 2) + 6;
+            let tp2 = closestRes - 4;
 
             detailsHtml = `
                 <div class="signal-card signal-buy">
-                    <span class="signal-badge badge-buy">🟢 SIGNAL: BUY (Support Hit)</span>
-                    <div>بۆت تێبینی کرد: نرخ پاڵپشتی هێڵی جانی وەرگرتووە، کاتی کڕینە.</div>
+                    <span class="signal-badge badge-buy">🟢 سیگناڵی کڕین: BUY (گۆشەی ${activeAngle}°)</span>
+                    <div>بۆت تێبینی کرد: نرخ پاڵپشتی بەهێزی وەرگرت لەسەر هێڵی جان لە گۆشەی ${activeAngle}°.</div>
                     <div class="levels-grid">
-                        <div class="level-item">🎯 نرخ: <b>${Math.round(currentPrice)}</b></div>
-                        <div class="level-item" style="color:#da3637;">🛑 Stop Loss: <b>${Math.round(sl)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 Target 1: <b>${Math.round(tp1)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">💰 Target 2: <b>${Math.round(tp2)}</b></div>
+                        <div class="level-item">🎯 نرخی چوونە ناو: <b>${Math.round(currentPrice)}</b></div>
+                        <div class="level-item" style="color:#da3637;">🛑 ستۆپ لۆز (SL): <b>${Math.round(sl)}</b></div>
+                        <div class="level-item" style="color:#2ea44f;">💰 ئامانجی یەکەم (TP1): <b>${Math.round(tp1)}</b></div>
+                        <div class="level-item" style="color:#2ea44f;">💰 ئامانجی دووەم (TP2): <b>${Math.round(tp2)}</b></div>
                     </div>
                 </div>`;
         } else {
             detailsHtml = `
                 <div class="signal-card signal-hold">
-                    <span class="signal-badge badge-hold">🟡 STATUS: SCANNING MARKET</span>
-                    <div>بازاڕ لە دۆخی جێگیردایە و چاوڕوانی گەیشتنە بەم هێڵانەی جان:</div>
+                    <span class="signal-badge badge-hold">🟡 چاودێری بەردەوام (SCANNING)</span>
+                    <div>بازاڕ لە نێوان گۆشەکاندایە. نزیکترین هێڵەکانی جان بۆ کاتژمێری داهاتوو:</div>
                     <div class="levels-grid">
-                        <div class="level-item" style="color:#da3637;">🔺 بەربەستی داهاتوو: <b>${Math.round(closestRes)}</b></div>
-                        <div class="level-item" style="color:#2ea44f;">🔻 پشتگیری داهاتوو: <b>${Math.round(closestSup)}</b></div>
+                        <div class="level-item" style="color:#da3637;">🔺 بەربەستی سەرەوە: <b>${Math.round(closestRes)}</b></div>
+                        <div class="level-item" style="color:#2ea44f;">🔻 پاڵپشتی خوارەوە: <b>${Math.round(closestSup)}</b></div>
                     </div>
                 </div>`;
         }
@@ -357,28 +375,30 @@
         container.innerHTML = detailsHtml;
     }
 
-    function drawWheel(centerPrice, levels) {
+    function drawWheel(centerPrice, activeAngles) {
         const canvas = document.getElementById('gannCanvas');
         const ctx = canvas.getContext('2d');
         const cx = canvas.width / 2;
         const cy = canvas.height / 2;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        for (let a = 0; a < 360; a += 45) {
-            let rad = (a * Math.PI) / 180;
+        // کێشانی هێڵی هەموو گۆشە چالاکەکان لەسەر بازنەکە
+        activeAngles.forEach(angle => {
+            let rad = (angle * Math.PI) / 180;
             ctx.beginPath(); ctx.moveTo(cx, cy);
             ctx.lineTo(cx + 160 * Math.cos(rad), cy + 160 * Math.sin(rad));
-            ctx.strokeStyle = '#00ffcc15'; ctx.stroke();
-        }
+            ctx.strokeStyle = angle % 90 === 0 ? '#ffd70033' : '#00ffcc22'; 
+            ctx.lineWidth = angle % 90 === 0 ? 1.5 : 1;
+            ctx.stroke();
+        });
 
+        // بازنەی دەرەوەی ئەندازیاری
         ctx.beginPath();
-        for (let i = 0; i <= 8; i++) {
-            let rad = (i * 45 * Math.PI) / 180;
-            if (i === 0) ctx.moveTo(cx + 140 * Math.cos(rad), cy + 140 * Math.sin(rad));
-            else ctx.lineTo(cx + 140 * Math.cos(rad), cy + 140 * Math.sin(rad));
-        }
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)'; ctx.stroke();
+        ctx.arc(cx, cy, 140, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(48, 54, 61, 0.6)';
+        ctx.stroke();
 
+        // ناوەندی سەنتەری چەرخەکە
         ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
         ctx.fillStyle = '#ffd700'; ctx.fill();
         ctx.fillStyle = '#000'; ctx.font = 'bold 11px sans-serif';
@@ -388,7 +408,7 @@
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('botTime').innerText = "کاتی پشکنین: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('botTime').innerText = "کاتی دواین پشکنینی بۆت: " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }
 
     window.onload = runGannEngine;
